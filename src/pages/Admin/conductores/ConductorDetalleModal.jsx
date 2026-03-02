@@ -118,11 +118,6 @@ const ConductorDetalleModal = ({ conductor, onClose }) => {
                 label="Teléfono" 
                 value={conductor.telefono} 
               />
-              {conductor.telefono && (
-                <button className="whatsapp-btn" onClick={handleWhatsApp}>
-                  <i className="fab fa-whatsapp"></i> Contactar
-                </button>
-              )}
               <CampoInfo 
                 icon={CalendarDays} 
                 label="Fecha de nacimiento" 

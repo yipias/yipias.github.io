@@ -1,5 +1,5 @@
 // src/components/Conductores/FormularioConductor.jsx
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   User, Phone, Car, Calendar, MapPin, 
   Upload, CheckCircle, X, Camera, Home, Wifi, Briefcase,
@@ -7,61 +7,95 @@ import {
 } from 'lucide-react';
 import './FormularioConductor.css';
 
+const STORAGE_KEY = 'yipias_conductor_form';
+const PREVIEWS_KEY = 'yipias_conductor_previews';
+
 const FormularioConductor = ({ onSubmit, loading }) => {
-  const [formData, setFormData] = useState({
-    // Datos personales
-    nombreCompleto: '',
-    ciudadOperacion: '',
-    telefono: '',
-    fechaNacimiento: '',
-    direccion: '',
-    
-    // Datos del vehículo
-    vehiculo: {
-      año: '',
-      color: '',
-      placa: '',
-      aireAcondicionado: '',
-      aireAcondicionadoOtro: ''
-    },
-    
-    // Documentos (fotos)
-    fotos: {
-      perfil: null,
-      vehiculoFrontal: null,
-      vehiculoLateral: null,
-      vehiculoInterior: null,
-      tarjetaPropiedadFrente: null,
-      tarjetaPropiedadTrasero: null,
-      breveteFrente: null,
-      breveteTrasero: null,
-      soat: null,
-      reciboLuz: null
-    },
-    
-    // Preguntas
-    codigoVestimenta: '',
-    manejoClienteExigente: '',
-    significadoPremium: ''
+  const [formData, setFormData] = useState(() => {
+    // Cargar datos guardados al iniciar
+    const saved = sessionStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Error cargando datos guardados:', e);
+      }
+    }
+    // Estado inicial por defecto
+    return {
+      nombreCompleto: '',
+      ciudadOperacion: '',
+      telefono: '',
+      fechaNacimiento: '',
+      direccion: '',
+      vehiculo: {
+        año: '',
+        color: '',
+        placa: '',
+        aireAcondicionado: '',
+        aireAcondicionadoOtro: ''
+      },
+      fotos: {
+        perfil: null,
+        vehiculoFrontal: null,
+        vehiculoLateral: null,
+        vehiculoInterior: null,
+        tarjetaPropiedadFrente: null,
+        tarjetaPropiedadTrasero: null,
+        breveteFrente: null,
+        breveteTrasero: null,
+        soat: null,
+        reciboLuz: null
+      },
+      codigoVestimenta: '',
+      manejoClienteExigente: '',
+      significadoPremium: ''
+    };
   });
 
-  const [fotoPreviews, setFotoPreviews] = useState({
-    perfil: '',
-    vehiculoFrontal: '',
-    vehiculoLateral: '',
-    vehiculoInterior: '',
-    tarjetaPropiedadFrente: '',
-    tarjetaPropiedadTrasero: '',
-    breveteFrente: '',
-    breveteTrasero: '',
-    soat: '',
-    reciboLuz: ''
+  const [fotoPreviews, setFotoPreviews] = useState(() => {
+    // Cargar previews guardados (solo las URLs de datos)
+    const saved = sessionStorage.getItem(PREVIEWS_KEY);
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Error cargando previews:', e);
+      }
+    }
+    return {
+      perfil: '',
+      vehiculoFrontal: '',
+      vehiculoLateral: '',
+      vehiculoInterior: '',
+      tarjetaPropiedadFrente: '',
+      tarjetaPropiedadTrasero: '',
+      breveteFrente: '',
+      breveteTrasero: '',
+      soat: '',
+      reciboLuz: ''
+    };
   });
 
   const [terminos, setTerminos] = useState(false);
 
   const ciudades = ['Lima', 'Tacna', 'Piura', 'Chachapoyas'];
   const opcionesAire = ['Sí', 'No', 'Otros'];
+
+  // Guardar automáticamente cuando cambian los datos
+  useEffect(() => {
+    // No podemos guardar File objects en sessionStorage, así que guardamos solo los campos de texto
+    const datosParaGuardar = {
+      ...formData,
+      fotos: {} // No guardamos los File objects
+    };
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(datosParaGuardar));
+  }, [formData]);
+
+  // Guardar previews cuando cambian
+  useEffect(() => {
+    sessionStorage.setItem(PREVIEWS_KEY, JSON.stringify(fotoPreviews));
+  }, [fotoPreviews]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -128,56 +162,68 @@ const FormularioConductor = ({ onSubmit, loading }) => {
       'breveteTrasero', 'soat', 'reciboLuz'
     ];
     
-    const fotosFaltantes = [];
-    for (let campo of fotosRequeridas) {
-      if (!formData.fotos[campo]) {
-        fotosFaltantes.push(campo);
-      }
-    }
+    const fotosFaltantes = fotosRequeridas.filter(campo => !formData.fotos[campo]);
     
     if (fotosFaltantes.length > 0) {
       alert(`Faltan las siguientes fotos: ${fotosFaltantes.join(', ')}`);
       return;
     }
     
+    // Limpiar sessionStorage al enviar
+    sessionStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(PREVIEWS_KEY);
+    
     // Enviar datos al hook
     onSubmit(formData, formData.fotos);
   };
 
-  const FotoUploader = ({ campo, label, required = true }) => (
-    <div className="foto-uploader">
-      <label>{label} {required && <span className="required">*</span>}</label>
-      <div className="foto-input-container">
-        {fotoPreviews[campo] ? (
-          <div className="foto-preview-wrapper">
-            <img src={fotoPreviews[campo]} alt={label} />
-            <button 
-              type="button" 
-              className="remove-foto"
-              onClick={() => removeFoto(campo)}
+  const FotoUploader = ({ campo, label, required = true }) => {
+    const inputRef = React.useRef(null);
+
+    const handleClick = () => {
+      // Abrir selector de archivos al hacer clic en la imagen o en el placeholder
+      inputRef.current?.click();
+    };
+
+    return (
+      <div className="foto-uploader">
+        <label>{label} {required && <span className="required">*</span>}</label>
+        <div className="foto-input-container">
+          {fotoPreviews[campo] ? (
+            <div className="foto-preview-wrapper" onClick={handleClick}>
+              <img src={fotoPreviews[campo]} alt={label} />
+              <button 
+                type="button" 
+                className="remove-foto"
+                onClick={(e) => {
+                  e.stopPropagation(); // Evitar que se abra el selector
+                  removeFoto(campo);
+                }}
+              >
+                <X size={16} />
+              </button>
+            </div>
+          ) : (
+            <div 
+              className="foto-upload-placeholder"
+              onClick={handleClick}
             >
-              <X size={16} />
-            </button>
-          </div>
-        ) : (
-          <div 
-            className="foto-upload-placeholder"
-            onClick={() => document.getElementById(`foto-${campo}`).click()}
-          >
-            <Camera size={24} />
-            <span>Subir foto</span>
-          </div>
-        )}
-        <input
-          type="file"
-          id={`foto-${campo}`}
-          accept="image/*"
-          onChange={(e) => handleFotoChange(campo, e.target.files[0])}
-          style={{ display: 'none' }}
-        />
+              <Camera size={24} />
+              <span>Subir foto</span>
+            </div>
+          )}
+          <input
+            ref={inputRef}
+            type="file"
+            id={`foto-${campo}`}
+            accept="image/*"
+            onChange={(e) => handleFotoChange(campo, e.target.files[0])}
+            style={{ display: 'none' }}
+          />
+        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <form className="conductor-form" onSubmit={handleSubmit}>

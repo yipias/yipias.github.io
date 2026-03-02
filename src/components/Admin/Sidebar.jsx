@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
   Users, 
   UserCheck, 
   Calendar, 
@@ -37,8 +36,8 @@ const Sidebar = () => {
     }
   }, [location.pathname, isMobile]);
 
+  // SIN DASHBOARD - Solo las 4 opciones principales
   const menuItems = [
-    { path: '/admin', icon: <LayoutDashboard size={20} />, label: 'Dashboard' },
     { path: '/admin/conductores', icon: <Users size={20} />, label: 'Conductores' },
     { path: '/admin/clientes', icon: <UserCheck size={20} />, label: 'Clientes' },
     { path: '/admin/reservas', icon: <Calendar size={20} />, label: 'Reservas' },
@@ -47,7 +46,6 @@ const Sidebar = () => {
 
   const toggleMobileMenu = () => {
     setIsMobileOpen(!isMobileOpen);
-    // Prevenir scroll del body cuando el menú está abierto
     if (!isMobileOpen) {
       document.body.style.overflow = 'hidden';
     } else {
