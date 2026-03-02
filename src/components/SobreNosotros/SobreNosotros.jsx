@@ -97,7 +97,7 @@ const SobreNosotros = () => {
         
         {/* Copyright */}
         <div className="about-copyright reveal">
-          © {new Date().getFullYear()} YipiAs · Transporte Turístico Autorizado
+          © {new Date().getFullYear()} YipiAs · Reservas de Movilidad
         </div>
         
       </div>

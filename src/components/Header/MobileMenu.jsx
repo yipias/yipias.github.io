@@ -7,6 +7,9 @@ const MobileMenu = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
 
+  // Verificar si es admin
+  const isAdmin = currentUser?.email === 'ensegcor@gmail.com';
+
   const handleScroll = (id) => {
     const element = document.getElementById(id);
     if (element) {
@@ -30,6 +33,15 @@ const MobileMenu = ({ isOpen, onClose }) => {
   return (
     <div className={`mobile-menu ${isOpen ? 'open' : ''}`} id="mobileMenu">
       <ul className="mobile-nav-links">
+
+        {/* 0. PANEL ADMINISTRADOR (SOLO PARA ADMIN) - AGREGADO */}
+        {isAdmin && (
+          <li>
+            <Link to="/admin" onClick={onClose}>
+              Panel Administrador
+            </Link>
+          </li>
+        )}
 
         {/* 1. MIS RESERVAS (PRIMERO SIEMPRE QUE ESTÉ LOGEADO) */}
         {currentUser && (

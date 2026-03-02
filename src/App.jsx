@@ -1,5 +1,6 @@
+// src/App.jsx
 import React, { useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 
 import Header from './components/Header/Header';
 import Hero from './components/Hero/Hero';
@@ -13,7 +14,13 @@ import WhatsAppFloat from './components/WhatsApp/WhatsAppFloat';
 import Terminos from './pages/Terminos';
 import Privacidad from './pages/Privacidad';
 import MisReservas from './pages/MisReservas';
-import ConductorRegistro from './pages/ConductorRegistro'; // ← NUEVA IMPORTACIÓN
+import ConductorRegistro from './pages/ConductorRegistro';
+
+// IMPORTACIONES PARA ADMIN
+import AdminLayout from './pages/Admin/AdminLayout';
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import ConductoresPage from './pages/Admin/conductores/ConductoresPage'; // ← NUEVO
+
 import ScrollToTop from './components/ScrollToTop';
 import AuthModal from './components/Auth/AuthModal';
 import SplashScreen from './components/SplashScreen/SplashScreen';
@@ -23,17 +30,23 @@ import './assets/global.css';
 function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [splashVisible, setSplashVisible] = useState(true);
+  const location = useLocation();
 
   const handleSplashFinish = () => {
     setSplashVisible(false);
   };
+
+  // Verificar si estamos en ruta de admin
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
     <>
       {splashVisible && <SplashScreen onFinish={handleSplashFinish} />}
       
       <ScrollToTop />
-      <Header onOpenAuth={() => setShowAuthModal(true)} />
+      
+      {/* HEADER: SOLO se muestra si NO estamos en admin */}
+      {!isAdminRoute && <Header onOpenAuth={() => setShowAuthModal(true)} />}
 
       <Routes>
         <Route
@@ -51,10 +64,19 @@ function App() {
           }
         />
 
+        {/* RUTAS DE ADMIN */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="conductores" element={<ConductoresPage />} /> {/* ← ACTUALIZADO */}
+          <Route path="clientes" element={<div>Panel de Clientes</div>} />
+          <Route path="reservas" element={<div>Panel de Reservas</div>} />
+          <Route path="tarifario" element={<div>Panel de Tarifario</div>} />
+        </Route>
+
         <Route path="/terminos" element={<Terminos />} />
         <Route path="/privacidad" element={<Privacidad />} />
         <Route path="/mis-reservas" element={<MisReservas />} />
-        <Route path="/conductor-registro" element={<ConductorRegistro />} /> {/* ← NUEVA RUTA */}
+        <Route path="/conductor-registro" element={<ConductorRegistro />} />
       </Routes>
 
       <Footer />

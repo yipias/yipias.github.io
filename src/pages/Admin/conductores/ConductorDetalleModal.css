@@ -1,0 +1,392 @@
+/* src/pages/Admin/conductores/ConductorDetalleModal.css */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(8px);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content.conductor-modal {
+  max-width: 1000px;
+  width: 100%;
+  max-height: 90vh;
+  background: #1a1a1a;
+  border-radius: 24px;
+  border: 1px solid rgba(220, 53, 69, 0.3);
+  overflow-y: auto;
+}
+
+.modal-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  background: #1a1a1a;
+  z-index: 10;
+}
+
+.modal-header h2 {
+  color: #dc3545;
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.close-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  background: #dc3545;
+  transform: rotate(90deg);
+}
+
+.modal-body {
+  padding: 2rem;
+}
+
+/* Fecha postulacion destacada */
+.fecha-postulacion-destacada {
+  background: #2a2a2a;
+  padding: 0.8rem 1rem;
+  border-radius: 30px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #dc3545;
+  font-size: 0.9rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(220,53,69,0.3);
+}
+
+/* Títulos de sección */
+.conductor-modal h3 {
+  color: #dc3545;
+  font-size: 1.2rem;
+  margin: 2rem 0 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(220,53,69,0.3);
+}
+
+.conductor-modal h3:first-of-type {
+  margin-top: 0;
+}
+
+/* Grid de campos */
+.campos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.campo-info {
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 1rem;
+  border-left: 3px solid #dc3545;
+}
+
+.campo-info.full-width {
+  grid-column: 1 / -1;
+}
+
+.campo-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #dc3545;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.campo-valor {
+  color: white;
+  font-size: 1rem;
+  word-break: break-word;
+  padding-left: 1.5rem;
+}
+
+/* Botón WhatsApp */
+.whatsapp-btn {
+  background: #25d366;
+  color: white;
+  border: none;
+  padding: 0.8rem 1rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  grid-column: span 1;
+}
+
+.whatsapp-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(37, 211, 102, 0.3);
+}
+
+/* Fotos - estilo formulario */
+.foto-perfil-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.foto-perfil-section .foto-visualizador {
+  align-items: center;
+}
+
+.foto-perfil-section .foto-contenedor {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  margin: 0 auto;
+}
+
+.fotos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.foto-visualizador {
+  margin-bottom: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.foto-visualizador label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: #888;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.foto-contenedor {
+  width: 100%;
+  height: 140px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.foto-contenedor:hover {
+  border-color: #dc3545;
+  transform: scale(1.02);
+}
+
+.foto-contenedor img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.foto-placeholder {
+  width: 100%;
+  height: 100%;
+  background: #2a2a2a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  gap: 0.5rem;
+}
+
+/* Preguntas */
+.preguntas-grid {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.pregunta-item {
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.pregunta-label {
+  color: #dc3545;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.5rem;
+}
+
+.pregunta-valor {
+  color: white;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+/* Modal footer */
+.modal-footer {
+  padding: 1.5rem 2rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  position: sticky;
+  bottom: 0;
+  background: #1a1a1a;
+}
+
+.btn-rechazar,
+.btn-aprobar {
+  padding: 0.8rem 2rem;
+  border-radius: 30px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-rechazar {
+  background: #2a2a2a;
+  color: #dc3545;
+  border: 1px solid #dc3545;
+}
+
+.btn-rechazar:hover {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-aprobar {
+  background: #28a745;
+  color: white;
+}
+
+.btn-aprobar:hover {
+  background: #218838;
+}
+
+/* Modal para foto ampliada */
+.foto-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.98);
+  z-index: 2100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.foto-modal-content {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.foto-modal-content img {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.close-foto {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #dc3545;
+  color: white;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .modal-content.conductor-modal {
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 1rem;
+  }
+
+  .campos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .fotos-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .btn-rechazar,
+  .btn-aprobar {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .close-foto {
+    top: 10px;
+    right: 10px;
+  }
+
+  .fecha-postulacion-destacada {
+    width: 100%;
+    justify-content: center;
+  }
+}

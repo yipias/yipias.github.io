@@ -1,0 +1,65 @@
+/* src/pages/Admin/AdminDashboard.css */
+.admin-dashboard {
+  width: 100%;
+}
+
+.admin-dashboard h1 {
+  color: #fff;
+  margin-bottom: 0.5rem;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+}
+
+.admin-dashboard p {
+  color: #888;
+  margin-bottom: 2rem;
+  font-size: clamp(0.9rem, 3vw, 1rem);
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.stat-card {
+  background: #1a1a1a;
+  border-radius: 20px;
+  padding: 1.5rem;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.stat-card h3 {
+  color: #888;
+  font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+  margin-bottom: 0.5rem;
+}
+
+.stat-number {
+  color: #dc3545;
+  font-size: clamp(2rem, 5vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+  
+  .stat-card {
+    padding: 1.2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stat-card {
+    padding: 1rem;
+  }
+}

@@ -121,19 +121,26 @@ const FormularioConductor = ({ onSubmit, loading }) => {
       return;
     }
     
+    // Verificar que todas las fotos requeridas estén presentes
     const fotosRequeridas = [
       'perfil', 'vehiculoFrontal', 'vehiculoLateral', 'vehiculoInterior',
       'tarjetaPropiedadFrente', 'tarjetaPropiedadTrasero', 'breveteFrente',
       'breveteTrasero', 'soat', 'reciboLuz'
     ];
     
+    const fotosFaltantes = [];
     for (let campo of fotosRequeridas) {
       if (!formData.fotos[campo]) {
-        alert(`Debes adjuntar la foto de ${campo.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
-        return;
+        fotosFaltantes.push(campo);
       }
     }
     
+    if (fotosFaltantes.length > 0) {
+      alert(`Faltan las siguientes fotos: ${fotosFaltantes.join(', ')}`);
+      return;
+    }
+    
+    // Enviar datos al hook
     onSubmit(formData, formData.fotos);
   };
 
@@ -231,7 +238,7 @@ const FormularioConductor = ({ onSubmit, loading }) => {
             name="fechaNacimiento"
             value={formData.fechaNacimiento}
             onChange={handleChange}
-            placeholder="Ingresa tu fecha de nacimiento"
+            placeholder="DD/MM/AAAA"
             required
           />
         </div>
@@ -322,7 +329,7 @@ const FormularioConductor = ({ onSubmit, loading }) => {
       <div className="fotos-grid">
         <FotoUploader campo="vehiculoFrontal" label="Frontal (placa visible)" />
         <FotoUploader campo="vehiculoLateral" label="Lateral" />
-        <FotoUploader campo="vehiculoInterior" label="Interior (desde asiento trasero)" />
+        <FotoUploader campo="vehiculoInterior" label="Interior (desde atrás)" />
       </div>
 
       {/* ===== DOCUMENTOS ===== */}
@@ -333,7 +340,7 @@ const FormularioConductor = ({ onSubmit, loading }) => {
         <FotoUploader campo="breveteFrente" label="Brevete (Frente)" />
         <FotoUploader campo="breveteTrasero" label="Brevete (Trasero)" />
         <FotoUploader campo="soat" label="SOAT (Vigente)" />
-        <FotoUploader campo="reciboLuz" label="Recibo de luz y/o agua" />
+        <FotoUploader campo="reciboLuz" label="Recibo de luz/agua" />
       </div>
 
       {/* ===== PREGUNTAS ===== */}

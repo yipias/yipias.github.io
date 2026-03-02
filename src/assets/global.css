@@ -41,3 +41,17 @@ body {
   margin: 0 auto;
   padding: 0 1rem;
 }
+
+/* src/assets/global.css (AGREGAR AL FINAL) */
+
+/* ===== ADMIN OPTION IN MOBILE MENU ===== */
+.mobile-nav-links li.admin-option a {
+  color: #dc3545;
+  font-weight: 600;
+  border-left: 3px solid #dc3545;
+  background: rgba(220, 53, 69, 0.1);
+}
+
+.mobile-nav-links li.admin-option a:hover {
+  background: rgba(220, 53, 69, 0.2);
+}

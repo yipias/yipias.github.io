@@ -9,28 +9,52 @@ export const useRegistroConductor = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
-  const registrarConductor = async (datos, fotoFile) => {
+  const registrarConductor = async (datos, fotos) => {
     setLoading(true);
     setError('');
     
     try {
-      // 1. Subir foto a Storage si existe
-      let fotoURL = '';
-      if (fotoFile) {
-        const storageRef = ref(storage, `conductores/${Date.now()}_${fotoFile.name}`);
-        await uploadBytes(storageRef, fotoFile);
-        fotoURL = await getDownloadURL(storageRef);
+      // 1. Crear objeto para almacenar las URLs de las fotos
+      const fotosUrls = {};
+
+      // 2. Subir cada foto a Storage y obtener su URL
+      for (const [campo, file] of Object.entries(fotos)) {
+        if (file) {
+          // Crear nombre único para el archivo
+          const fileName = `${Date.now()}_${campo}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+          const storageRef = ref(storage, `conductores/${fileName}`);
+          
+          // Subir archivo
+          await uploadBytes(storageRef, file);
+          
+          // Obtener URL
+          const url = await getDownloadURL(storageRef);
+          
+          // Guardar URL en el objeto
+          fotosUrls[campo] = url;
+        }
       }
 
-      // 2. Guardar datos en Firestore
+      // 3. Separar datos del vehículo del resto
+      const { vehiculo, ...restoDatos } = datos;
+
+      // 4. Preparar datos para Firestore (SIN objetos File)
       const conductorData = {
-        ...datos,
-        fotoURL,
+        ...restoDatos,
+        vehiculo: {
+          año: vehiculo.año || '',
+          color: vehiculo.color || '',
+          placa: vehiculo.placa || '',
+          aireAcondicionado: vehiculo.aireAcondicionado || '',
+          aireAcondicionadoOtro: vehiculo.aireAcondicionadoOtro || ''
+        },
+        fotos: fotosUrls, // ← SOLO URLs, NO los archivos
         fechaRegistro: serverTimestamp(),
-        estado: 'pendiente', // pendiente, aprobado, rechazado
+        estado: 'pendiente',
         disponible: false
       };
 
+      // 5. Guardar en Firestore
       const docRef = await addDoc(collection(db, 'conductores'), conductorData);
       
       setSuccess(true);
