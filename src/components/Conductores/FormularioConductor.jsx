@@ -289,7 +289,7 @@ const FormularioConductor = ({ onSubmit, loading }) => {
 
       {/* Mensaje de compresión */}
       <div className="compression-info">
-        <p>📸 Las imágenes se comprimirán automáticamente para optimizar el envío</p>
+        <p>Las imágenes se comprimirán automáticamente para optimizar el envío</p>
         {comprimiendo && <p className="comprimiendo">Comprimiendo imagen...</p>}
       </div>
 
