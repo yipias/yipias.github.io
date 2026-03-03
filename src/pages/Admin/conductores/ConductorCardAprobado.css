@@ -163,3 +163,20 @@
   align-items: center;
   gap: 0.3rem;
 }
+
+/* Para ConductorCard.css y ConductorCardAprobado.css */
+.vehiculo-detalle {
+  font-size: 12px;
+  color: #888;
+  margin-left: 18px;
+  margin-top: 4px;
+}
+
+.detalle-item.vehiculo {
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+.detalle-item.vehiculo span {
+  color: #dc3545;
+}

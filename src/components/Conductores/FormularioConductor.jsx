@@ -26,6 +26,8 @@ const FormularioConductor = ({ onSubmit, loading }) => {
       fechaNacimiento: '',
       direccion: '',
       vehiculo: {
+        marca: '',
+        modelo: '',
         año: '',
         color: '',
         placa: '',
@@ -77,7 +79,15 @@ const FormularioConductor = ({ onSubmit, loading }) => {
       telefono: formData.telefono,
       fechaNacimiento: formData.fechaNacimiento,
       direccion: formData.direccion,
-      vehiculo: formData.vehiculo,
+      vehiculo: {
+        marca: formData.vehiculo.marca,
+        modelo: formData.vehiculo.modelo,
+        año: formData.vehiculo.año,
+        color: formData.vehiculo.color,
+        placa: formData.vehiculo.placa,
+        aireAcondicionado: formData.vehiculo.aireAcondicionado,
+        aireAcondicionadoOtro: formData.vehiculo.aireAcondicionadoOtro
+      },
       codigoVestimenta: formData.codigoVestimenta,
       manejoClienteExigente: formData.manejoClienteExigente,
       significadoPremium: formData.significadoPremium
@@ -358,6 +368,33 @@ const FormularioConductor = ({ onSubmit, loading }) => {
       {/* ===== DATOS DEL VEHÍCULO ===== */}
       <h3>Datos del vehículo</h3>
       <div className="form-grid">
+        {/* MARCA */}
+        <div className="input-group">
+          <Car size={18} className="input-icon" />
+          <input
+            type="text"
+            name="vehiculo.marca"
+            value={formData.vehiculo.marca}
+            onChange={handleChange}
+            placeholder="Marca"
+            required
+          />
+        </div>
+
+        {/* MODELO */}
+        <div className="input-group">
+          <Car size={18} className="input-icon" />
+          <input
+            type="text"
+            name="vehiculo.modelo"
+            value={formData.vehiculo.modelo}
+            onChange={handleChange}
+            placeholder="Modelo"
+            required
+          />
+        </div>
+
+        {/* AÑO */}
         <div className="input-group">
           <Hash size={18} className="input-icon" />
           <input
@@ -370,6 +407,7 @@ const FormularioConductor = ({ onSubmit, loading }) => {
           />
         </div>
 
+        {/* COLOR */}
         <div className="input-group">
           <Palette size={18} className="input-icon" />
           <input
@@ -382,6 +420,7 @@ const FormularioConductor = ({ onSubmit, loading }) => {
           />
         </div>
 
+        {/* PLACA */}
         <div className="input-group">
           <Hash size={18} className="input-icon" />
           <input
@@ -394,6 +433,7 @@ const FormularioConductor = ({ onSubmit, loading }) => {
           />
         </div>
 
+        {/* AIRE ACONDICIONADO */}
         <div className="input-group">
           <Wifi size={18} className="input-icon" />
           <select

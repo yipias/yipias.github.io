@@ -1,6 +1,6 @@
 // src/pages/Admin/conductores/ConductorCardAprobado.jsx
 import React from 'react';
-import { User, Calendar, Phone, Eye, RotateCcw, Star, CheckCircle } from 'lucide-react';
+import { User, Calendar, Phone, Eye, RotateCcw, CheckCircle, Car } from 'lucide-react'; // ← AGREGAMOS Car
 import { useAdminConductores } from '../../../hooks/useAdminConductores';
 import './ConductorCardAprobado.css';
 
@@ -85,9 +85,17 @@ const ConductorCardAprobado = ({ conductor, onVerDetalle }) => {
             </div>
           )}
 
+          {/* ✅ NUEVO: Marca y Modelo del vehículo */}
           <div className="detalle-item vehiculo">
-            <span className="placa">{conductor.vehiculo?.placa || 'Sin placa'}</span>
-            <span className="modelo">{conductor.vehiculo?.año || ''}</span>
+            <Car size={14} />
+            <span>
+              {conductor.vehiculo?.marca || '?'} {conductor.vehiculo?.modelo || '?'} - {conductor.vehiculo?.placa || 'Sin placa'}
+            </span>
+          </div>
+          
+          {/* ✅ NUEVO: Año y Color */}
+          <div className="detalle-item vehiculo-detalle">
+            <span>Año: {conductor.vehiculo?.año || '?'} | Color: {conductor.vehiculo?.color || '?'}</span>
           </div>
         </div>
       </div>

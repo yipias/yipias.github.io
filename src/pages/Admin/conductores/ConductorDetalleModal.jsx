@@ -278,6 +278,28 @@ const ConductorDetalleModal = ({ conductor, onClose, tipo = 'pendiente' }) => {
             {/* DATOS DEL VEHÍCULO */}
             <h3>Datos del vehículo</h3>
             <div className="campos-grid">
+              {/* ✅ MARCA - NUEVO */}
+              <CampoInfo 
+                icon={Car} 
+                label="Marca" 
+                field="vehiculo.marca"
+                value={getNestedValue(editMode ? editedData : conductor, 'vehiculo.marca')}
+                editMode={editMode}
+                tipo={tipo}
+                onUpdate={handleFieldUpdate}
+              />
+              
+              {/* ✅ MODELO - NUEVO */}
+              <CampoInfo 
+                icon={Car} 
+                label="Modelo" 
+                field="vehiculo.modelo"
+                value={getNestedValue(editMode ? editedData : conductor, 'vehiculo.modelo')}
+                editMode={editMode}
+                tipo={tipo}
+                onUpdate={handleFieldUpdate}
+              />
+              
               <CampoInfo 
                 icon={Hash} 
                 label="Año" 

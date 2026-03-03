@@ -1,18 +1,36 @@
 // src/pages/Admin/conductores/ConductorCard.jsx
 import React from 'react';
-import { User, Calendar, Phone, Eye } from 'lucide-react';
+import { User, Calendar, Phone, Eye, Car } from 'lucide-react'; // ← AGREGAMOS Car
 import './ConductorCard.css';
 
 const ConductorCard = ({ conductor, onVerDetalle }) => {
   const formatFecha = (fecha) => {
     if (!fecha) return 'Fecha no disponible';
-    return fecha.toLocaleDateString('es-PE', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
+    
+    try {
+      if (fecha?.seconds) {
+        const date = new Date(fecha.seconds * 1000);
+        return date.toLocaleDateString('es-PE', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+      if (fecha instanceof Date) {
+        return fecha.toLocaleDateString('es-PE', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+      }
+      return 'Fecha no disponible';
+    } catch (error) {
+      return 'Fecha no disponible';
+    }
   };
 
   const handleWhatsApp = (e) => {
@@ -47,6 +65,19 @@ const ConductorCard = ({ conductor, onVerDetalle }) => {
               <span>{conductor.telefono}</span>
             </div>
           )}
+
+          {/* ✅ NUEVO: Marca y Modelo del vehículo */}
+          <div className="detalle-item vehiculo">
+            <Car size={14} />
+            <span>
+              {conductor.vehiculo?.marca || '?'} {conductor.vehiculo?.modelo || '?'} - {conductor.vehiculo?.placa || 'Sin placa'}
+            </span>
+          </div>
+          
+          {/* ✅ NUEVO: Año y Color */}
+          <div className="detalle-item vehiculo-detalle">
+            <span>Año: {conductor.vehiculo?.año || '?'} | Color: {conductor.vehiculo?.color || '?'}</span>
+          </div>
         </div>
       </div>
 
