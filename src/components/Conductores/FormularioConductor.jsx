@@ -691,7 +691,7 @@ const FormularioConductor = ({ onSubmit, loading }) => {
           onChange={(e) => setTerminos(e.target.checked)}
         />
         <CheckCircle size={16} className={`checkbox-icon ${terminos ? 'checked' : ''}`} />
-        <span>Confirmo que la información es verídica</span>
+        <span>Confirmo que la información es verídica.</span>
       </label>
 
       {/* Botón */}
