@@ -31,6 +31,9 @@ const ReservasTabs = () => {
   const { guardarReservaProgramada, guardarReservaHoras } = useFirebaseReservas();
   const { currentUser } = useAuth();
   
+  // ✅ NUEVO: Estado para saber si Maps está listo
+  const [mapsLoaded, setMapsLoaded] = useState(false);
+  
   // Estados para pestañas y selección
   const [activeTab, setActiveTab] = useState('');
   const [selectedInput, setSelectedInput] = useState(null);
@@ -68,6 +71,32 @@ const ReservasTabs = () => {
     dropoff: null,
     horas: null
   });
+
+  // ✅ NUEVO: Efecto para verificar carga de Maps
+  useEffect(() => {
+    // Función para verificar si Maps ya está cargado
+    const checkMapsLoaded = () => {
+      if (window.google && window.google.maps) {
+        console.log('✅ Google Maps listo');
+        setMapsLoaded(true);
+      } else {
+        console.log('⏳ Esperando Google Maps...');
+        setTimeout(checkMapsLoaded, 200);
+      }
+    };
+
+    // Si ya está cargado, activar inmediatamente
+    if (window.google?.maps) {
+      setMapsLoaded(true);
+    } else {
+      checkMapsLoaded();
+    }
+
+    // Escuchar el callback de Maps
+    window.initMap = function() {
+      setMapsLoaded(true);
+    };
+  }, []);
 
   // ===== LIMPIAR RUTA =====
   const limpiarRuta = () => {
@@ -372,7 +401,7 @@ const ReservasTabs = () => {
 
   // Configurar autocompletados
   useEffect(() => {
-    if (!mapRef.current || !window.google) return;
+    if (!mapRef.current || !window.google || !mapsLoaded) return;
 
     if (autocompleteRefs.current.pickup) {
       window.google.maps.event.clearInstanceListeners(autocompleteRefs.current.pickup);
@@ -480,7 +509,7 @@ const ReservasTabs = () => {
         window.google.maps.event.clearInstanceListeners(autocompleteRefs.current.horas);
       }
     };
-  }, [mapRef.current, activeTab]);
+  }, [mapRef.current, activeTab, mapsLoaded]);
 
   const handleMapReady = (map) => {
     mapRef.current = map;
@@ -712,11 +741,18 @@ const ReservasTabs = () => {
           
           <div className="col map-col">
             <div className="map">
-              <MapaOriginal 
-                onMapReady={handleMapReady}
-                onMapClick={handlePlaceSelected}
-                selectedInput={selectedInput}
-              />
+              {mapsLoaded ? (
+                <MapaOriginal 
+                  onMapReady={handleMapReady}
+                  onMapClick={handlePlaceSelected}
+                  selectedInput={selectedInput}
+                />
+              ) : (
+                <div className="map-loading">
+                  <div className="spinner"></div>
+                  <p>Cargando mapa...</p>
+                </div>
+              )}
             </div>
           </div>
         </div>

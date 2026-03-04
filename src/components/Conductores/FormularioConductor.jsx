@@ -1,55 +1,57 @@
 // src/components/Conductores/FormularioConductor.jsx
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   User, Phone, Car, Calendar, MapPin, 
   Upload, CheckCircle, X, Camera, Home, Wifi, Briefcase,
-  CalendarDays, Hash, Palette
+  CalendarDays, Hash, Palette, Save
 } from 'lucide-react';
+import { useIndexedDB } from '../../hooks/useIndexedDB';
 import './FormularioConductor.css';
 
-const STORAGE_KEY = 'yipias_conductor_form';
+const DEBOUNCE_TIME = 1000; // 1 segundo
 
 const FormularioConductor = ({ onSubmit, loading }) => {
-  const [formData, setFormData] = useState(() => {
-    const saved = sessionStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch (e) {
-        console.error('Error cargando datos guardados:', e);
-      }
-    }
-    return {
-      nombreCompleto: '',
-      ciudadOperacion: '',
-      telefono: '',
-      fechaNacimiento: '',
-      direccion: '',
-      vehiculo: {
-        marca: '',
-        modelo: '',
-        año: '',
-        color: '',
-        placa: '',
-        aireAcondicionado: '',
-        aireAcondicionadoOtro: ''
-      },
-      fotos: {
-        perfil: null,
-        vehiculoFrontal: null,
-        vehiculoLateral: null,
-        vehiculoInterior: null,
-        tarjetaPropiedadFrente: null,
-        tarjetaPropiedadTrasero: null,
-        breveteFrente: null,
-        breveteTrasero: null,
-        soat: null,
-        reciboLuz: null
-      },
-      codigoVestimenta: '',
-      manejoClienteExigente: '',
-      significadoPremium: ''
-    };
+  // ===== HOOK DE INDEXEDDB =====
+  const { 
+    guardarTexto,
+    guardarFoto,
+    cargarTexto,
+    cargarTodasLasFotos,
+    eliminarFoto,
+    limpiarFormulario,
+  } = useIndexedDB();
+
+  // ===== ESTADOS =====
+  const [formData, setFormData] = useState({
+    nombreCompleto: '',
+    ciudadOperacion: '',
+    telefono: '',
+    fechaNacimiento: '',
+    direccion: '',
+    vehiculo: {
+      marca: '',
+      modelo: '',
+      año: '',
+      color: '',
+      placa: '',
+      aireAcondicionado: '',
+      aireAcondicionadoOtro: ''
+    },
+    fotos: {
+      perfil: null,
+      vehiculoFrontal: null,
+      vehiculoLateral: null,
+      vehiculoInterior: null,
+      tarjetaPropiedadFrente: null,
+      tarjetaPropiedadTrasero: null,
+      breveteFrente: null,
+      breveteTrasero: null,
+      soat: null,
+      reciboLuz: null
+    },
+    codigoVestimenta: '',
+    manejoClienteExigente: '',
+    significadoPremium: ''
   });
 
   const [fotoPreviews, setFotoPreviews] = useState({
@@ -65,60 +67,130 @@ const FormularioConductor = ({ onSubmit, loading }) => {
     reciboLuz: ''
   });
 
+  const [uploadingPhotos, setUploadingPhotos] = useState({});
   const [terminos, setTerminos] = useState(false);
   const [comprimiendo, setComprimiendo] = useState(false);
+  const [showSaveNotification, setShowSaveNotification] = useState(false);
+  const [cargandoDatos, setCargandoDatos] = useState(true);
+  
+  const timeoutRef = useRef(null);
+  const fileInputRefs = useRef({});
 
   const ciudades = ['Lima', 'Tacna', 'Piura', 'Chachapoyas'];
   const opcionesAire = ['Sí', 'No', 'Otros'];
 
-  // Guardar solo datos de texto (sin fotos)
+  // ===== CARGAR DATOS GUARDADOS AL INICIAR =====
   useEffect(() => {
-    const datosParaGuardar = {
-      nombreCompleto: formData.nombreCompleto,
-      ciudadOperacion: formData.ciudadOperacion,
-      telefono: formData.telefono,
-      fechaNacimiento: formData.fechaNacimiento,
-      direccion: formData.direccion,
-      vehiculo: {
-        marca: formData.vehiculo.marca,
-        modelo: formData.vehiculo.modelo,
-        año: formData.vehiculo.año,
-        color: formData.vehiculo.color,
-        placa: formData.vehiculo.placa,
-        aireAcondicionado: formData.vehiculo.aireAcondicionado,
-        aireAcondicionadoOtro: formData.vehiculo.aireAcondicionadoOtro
-      },
-      codigoVestimenta: formData.codigoVestimenta,
-      manejoClienteExigente: formData.manejoClienteExigente,
-      significadoPremium: formData.significadoPremium
+    const cargarDatosGuardados = async () => {
+      try {
+        setCargandoDatos(true);
+        
+        // 1. Cargar texto
+        const textoGuardado = await cargarTexto();
+        if (textoGuardado) {
+          setFormData(prev => ({
+            ...prev,
+            ...textoGuardado
+          }));
+        }
+
+        // 2. Cargar todas las fotos y sus previews
+        const { fotos, fotosPreviews } = await cargarTodasLasFotos();
+        
+        // Actualizar fotos en formData (ahora son Blobs)
+        setFormData(prev => ({
+          ...prev,
+          fotos: {
+            ...prev.fotos,
+            ...fotos
+          }
+        }));
+
+        // Actualizar previews
+        setFotoPreviews(prev => ({
+          ...prev,
+          ...fotosPreviews
+        }));
+
+        console.log('✅ Datos cargados desde IndexedDB');
+      } catch (error) {
+        console.error('Error cargando datos:', error);
+      } finally {
+        setCargandoDatos(false);
+      }
     };
-    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(datosParaGuardar));
+
+    cargarDatosGuardados();
+  }, []);
+
+  // ===== NOTIFICACIÓN DE GUARDADO =====
+  const mostrarNotificacionGuardado = () => {
+    setShowSaveNotification(true);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      setShowSaveNotification(false);
+    }, 2000);
+  };
+
+  // ===== GUARDAR DATOS EN INDEXEDDB (con debounce) =====
+  const guardarDatos = useCallback(async () => {
+    try {
+      // Guardar solo texto en IndexedDB
+      const datosTexto = {
+        nombreCompleto: formData.nombreCompleto,
+        ciudadOperacion: formData.ciudadOperacion,
+        telefono: formData.telefono,
+        fechaNacimiento: formData.fechaNacimiento,
+        direccion: formData.direccion,
+        vehiculo: formData.vehiculo,
+        codigoVestimenta: formData.codigoVestimenta,
+        manejoClienteExigente: formData.manejoClienteExigente,
+        significadoPremium: formData.significadoPremium
+      };
+      
+      await guardarTexto(datosTexto);
+      mostrarNotificacionGuardado();
+      
+    } catch (error) {
+      console.error('Error guardando en IndexedDB:', error);
+    }
   }, [formData]);
 
-  // Función para comprimir imágenes
-  const comprimirImagen = useCallback((file, campo) => {
-    return new Promise((resolve) => {
+  // Debounce para guardar automáticamente
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      guardarDatos();
+    }, DEBOUNCE_TIME);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [formData, guardarDatos]);
+
+  // ===== COMPRESIÓN DE IMÁGENES =====
+  const comprimirImagen = useCallback((file) => {
+    return new Promise((resolve, reject) => {
       setComprimiendo(true);
       
       const reader = new FileReader();
       reader.readAsDataURL(file);
+      
       reader.onload = (e) => {
         const img = new Image();
         img.src = e.target.result;
+        
         img.onload = () => {
-          // Crear canvas
           const canvas = document.createElement('canvas');
           let width = img.width;
           let height = img.height;
           
-          // Redimensionar si es muy grande (máximo 1200px)
           const MAX_SIZE = 1200;
           if (width > MAX_SIZE || height > MAX_SIZE) {
             if (width > height) {
-              height = (height / width) * MAX_SIZE;
+              height = Math.round((height / width) * MAX_SIZE);
               width = MAX_SIZE;
             } else {
-              width = (width / height) * MAX_SIZE;
+              width = Math.round((width / height) * MAX_SIZE);
               height = MAX_SIZE;
             }
           }
@@ -126,34 +198,49 @@ const FormularioConductor = ({ onSubmit, loading }) => {
           canvas.width = width;
           canvas.height = height;
           
-          // Dibujar imagen redimensionada
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
           
-          // Comprimir a JPEG calidad 0.8 (80%)
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.8);
-          
-          // Convertir base64 a File
-          fetch(compressedBase64)
-            .then(res => res.blob())
-            .then(blob => {
+          // Convertir a blob directamente (más confiable)
+          canvas.toBlob((blob) => {
+            if (blob) {
+              // Crear File a partir del blob
               const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
                 type: 'image/jpeg'
               });
-              
               setComprimiendo(false);
               resolve(compressedFile);
-            });
+            } else {
+              setComprimiendo(false);
+              reject(new Error('Error al crear blob'));
+            }
+          }, 'image/jpeg', 0.8);
         };
+        
+        img.onerror = () => {
+          setComprimiendo(false);
+          reject(new Error('Error al cargar la imagen'));
+        };
+      };
+      
+      reader.onerror = () => {
+        setComprimiendo(false);
+        reject(new Error('Error al leer el archivo'));
       };
     });
   }, []);
 
+  // ===== MANEJAR CAMBIO DE FOTOS =====
   const handleFotoChange = async (campo, file) => {
     if (!file) return;
 
+    setUploadingPhotos(prev => ({ ...prev, [campo]: true }));
+
+    const input = fileInputRefs.current[campo];
+    if (input) input.disabled = true;
+
     try {
-      // Mostrar preview original mientras se comprime
+      // Mostrar preview inmediato
       const reader = new FileReader();
       reader.onloadend = () => {
         setFotoPreviews(prev => ({
@@ -163,10 +250,13 @@ const FormularioConductor = ({ onSubmit, loading }) => {
       };
       reader.readAsDataURL(file);
 
-      // Comprimir imagen en segundo plano
-      const compressedFile = await comprimirImagen(file, campo);
+      // Comprimir imagen
+      const compressedFile = await comprimirImagen(file);
       
-      // Actualizar formData con la imagen comprimida
+      // Guardar EN INDEXEDDB
+      await guardarFoto(campo, compressedFile);
+      
+      // Actualizar formData con el File comprimido
       setFormData(prev => ({
         ...prev,
         fotos: {
@@ -174,13 +264,26 @@ const FormularioConductor = ({ onSubmit, loading }) => {
           [campo]: compressedFile
         }
       }));
+
+      setTimeout(() => {
+        setUploadingPhotos(prev => ({ ...prev, [campo]: false }));
+        if (input) input.disabled = false;
+      }, 800);
+
     } catch (error) {
       console.error('Error al procesar imagen:', error);
       alert('Error al procesar la imagen. Intenta con otra.');
+      setUploadingPhotos(prev => ({ ...prev, [campo]: false }));
+      if (input) input.disabled = false;
     }
   };
 
-  const removeFoto = (campo) => {
+  // ===== ELIMINAR FOTO =====
+  const removeFoto = async (campo) => {
+    // Eliminar de IndexedDB
+    await eliminarFoto(campo);
+    
+    // Eliminar de estados
     setFormData(prev => ({
       ...prev,
       fotos: {
@@ -192,8 +295,14 @@ const FormularioConductor = ({ onSubmit, loading }) => {
       ...prev,
       [campo]: ''
     }));
+    
+    // Limpiar input
+    if (fileInputRefs.current[campo]) {
+      fileInputRefs.current[campo].value = '';
+    }
   };
 
+  // ===== MANEJAR CAMBIO DE INPUTS =====
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (name.includes('.')) {
@@ -210,7 +319,8 @@ const FormularioConductor = ({ onSubmit, loading }) => {
     }
   };
 
-  const handleSubmit = (e) => {
+  // ===== ENVIAR FORMULARIO =====
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!terminos) {
       alert('Debes aceptar los términos y condiciones');
@@ -229,26 +339,57 @@ const FormularioConductor = ({ onSubmit, loading }) => {
       alert(`Faltan las siguientes fotos: ${fotosFaltantes.join(', ')}`);
       return;
     }
+
+    // ✅ RECONSTRUIR FOTOS COMO FILES ANTES DE ENVIAR
+    const fotosParaEnviar = {};
     
-    sessionStorage.removeItem(STORAGE_KEY);
+    for (const campo of fotosRequeridas) {
+      const foto = formData.fotos[campo];
+      
+      if (foto instanceof File) {
+        // Ya es un File, lo usamos directo
+        fotosParaEnviar[campo] = foto;
+      } else if (foto instanceof Blob) {
+        // Es un Blob de IndexedDB, lo convertimos a File con nombre
+        const fileName = `${campo}_${Date.now()}.jpg`;
+        const file = new File([foto], fileName, { type: 'image/jpeg' });
+        fotosParaEnviar[campo] = file;
+      }
+    }
     
-    onSubmit(formData, formData.fotos);
+    // Limpiar IndexedDB después de enviar
+    await limpiarFormulario();
+    
+    // Enviar con los Files reconstruidos
+    onSubmit(formData, fotosParaEnviar);
   };
 
+  // ===== COMPONENTE FOTO UPLOADER =====
   const FotoUploader = ({ campo, label, required = true }) => {
-    const inputRef = React.useRef(null);
+    const inputRef = (el) => {
+      fileInputRefs.current[campo] = el;
+    };
 
     const handleClick = () => {
-      inputRef.current?.click();
+      if (uploadingPhotos[campo]) return;
+      fileInputRefs.current[campo]?.click();
     };
 
     return (
       <div className="foto-uploader">
         <label>{label} {required && <span className="required">*</span>}</label>
         <div className="foto-input-container">
-          {fotoPreviews[campo] ? (
+          {uploadingPhotos[campo] ? (
+            <div className="foto-uploading">
+              <div className="spinner-small"></div>
+              <span>Comprimiendo...</span>
+            </div>
+          ) : fotoPreviews[campo] ? (
             <div className="foto-preview-wrapper" onClick={handleClick}>
               <img src={fotoPreviews[campo]} alt={label} />
+              <div className="foto-status success">
+                <CheckCircle size={16} />
+              </div>
               <button 
                 type="button" 
                 className="remove-foto"
@@ -276,21 +417,40 @@ const FormularioConductor = ({ onSubmit, loading }) => {
             accept="image/jpeg,image/png,image/webp"
             onChange={(e) => handleFotoChange(campo, e.target.files[0])}
             style={{ display: 'none' }}
+            disabled={uploadingPhotos[campo]}
           />
         </div>
       </div>
     );
   };
 
+  if (cargandoDatos) {
+    return (
+      <div className="conductor-form-loading">
+        <div className="spinner"></div>
+        <p>Cargando datos guardados...</p>
+      </div>
+    );
+  }
+
   return (
     <form className="conductor-form" onSubmit={handleSubmit}>
+      {/* NOTIFICACIÓN DE PROGRESO GUARDADO */}
+      <div className={`save-notification ${showSaveNotification ? 'visible' : ''}`}>
+        <Save size={18} className="save-icon" />
+        <span>Progreso guardado</span>
+        <CheckCircle size={16} className="check-icon" />
+      </div>
+
       <h2>Únete a YipiAs como conductor</h2>
       <p className="form-subtitle">Completa todos los datos para ser parte de nuestra flota Premium</p>
 
       {/* Mensaje de compresión */}
       <div className="compression-info">
         <p>Las imágenes se comprimirán automáticamente para optimizar el envío</p>
-        {comprimiendo && <p className="comprimiendo">Comprimiendo imagen...</p>}
+        {Object.values(uploadingPhotos).some(v => v) && (
+          <p className="comprimiendo">Comprimiendo imagen...</p>
+        )}
       </div>
 
       {/* ===== FOTO DE PERFIL ===== */}
@@ -535,8 +695,8 @@ const FormularioConductor = ({ onSubmit, loading }) => {
       </label>
 
       {/* Botón */}
-      <button type="submit" className="submit-btn" disabled={loading || comprimiendo}>
-        {loading || comprimiendo ? 'Procesando...' : 'Enviar solicitud'}
+      <button type="submit" className="submit-btn" disabled={loading || Object.values(uploadingPhotos).some(v => v)}>
+        {loading || Object.values(uploadingPhotos).some(v => v) ? 'Procesando...' : 'Enviar solicitud'}
       </button>
     </form>
   );

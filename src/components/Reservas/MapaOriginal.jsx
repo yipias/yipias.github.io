@@ -1,4 +1,4 @@
-// src/components/Reservas/MapaOriginal.jsx (VERSIÓN COMPLETA CON UBICACIÓN ACTUAL)
+// src/components/Reservas/MapaOriginal.jsx
 import React, { useEffect, useRef } from 'react';
 import { GOOGLE_MAPS_KEY } from '../../utils/constants';
 
@@ -58,10 +58,8 @@ const MapaOriginal = ({ onMapReady, onMapClick, selectedInput }) => {
               map: map,
               title: 'Tu ubicación',
               icon: {
-                url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                url: 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
                 scaledSize: new window.google.maps.Size(30, 30)
-              },
-              label: {
               }
             });
           },
@@ -87,7 +85,7 @@ const MapaOriginal = ({ onMapReady, onMapClick, selectedInput }) => {
 
     if (!document.querySelector('script[src*="maps.googleapis"]')) {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=places&callback=initMap`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_KEY}&libraries=places&loading=async&callback=initMap`;
       script.async = true;
       script.defer = true;
       document.head.appendChild(script);

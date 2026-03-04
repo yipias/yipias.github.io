@@ -313,3 +313,180 @@
   font-weight: 600;
   margin-top: 0.5rem !important;
 }
+
+/* src/components/Conductores/FormularioConductor.css */
+/* (TODO LO QUE YA TIENES MÁS LO SIGUIENTE) */
+
+/* ===== NOTIFICACIÓN DE PROGRESO GUARDADO ===== */
+.save-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #2a2a2a;
+  border-left: 4px solid #28a745;
+  border-radius: 8px;
+  padding: 0.8rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  transform: translateX(120%);
+  transition: transform 0.3s ease;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.save-notification.visible {
+  transform: translateX(0);
+}
+
+.save-icon {
+  color: #28a745;
+}
+
+.save-notification span {
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.check-icon {
+  color: #28a745;
+  margin-left: auto;
+}
+
+/* Responsive para móvil */
+@media (max-width: 768px) {
+  .save-notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+    transform: translateY(-120%);
+  }
+  
+  .save-notification.visible {
+    transform: translateY(0);
+  }
+}
+
+/* El resto de tu CSS existente se mantiene igual */
+
+/* src/components/Conductores/FormularioConductor.css */
+/* AGREGAR AL FINAL DEL ARCHIVO */
+
+/* ===== ESTADO DE SUBIDA/COMPRIMIENDO ===== */
+.foto-uploading {
+  width: 100%;
+  height: 140px;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  background: var(--card);
+  color: #ffc107;
+}
+
+.spinner-small {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(255, 193, 7, 0.3);
+  border-top-color: #ffc107;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== INDICADOR DE ÉXITO EN LA FOTO ===== */
+.foto-status {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 24px;
+  height: 24px;
+  background: #28a745;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+/* ===== AJUSTE PARA FOTO DE PERFIL (CIRCULAR) ===== */
+.foto-perfil-section .foto-uploading {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+}
+
+.foto-perfil-section .spinner-small {
+  width: 30px;
+  height: 30px;
+}
+
+/* ===== MEJORA EN LA NOTIFICACIÓN ===== */
+.save-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #2a2a2a;
+  border-left: 4px solid #28a745;
+  border-radius: 8px;
+  padding: 0.8rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  transform: translateX(120%);
+  transition: transform 0.3s ease;
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.save-notification.visible {
+  transform: translateX(0);
+}
+
+.save-icon {
+  color: #28a745;
+}
+
+.save-notification span {
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.check-icon {
+  color: #28a745;
+  margin-left: auto;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  .save-notification {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+    transform: translateY(-120%);
+  }
+  
+  .save-notification.visible {
+    transform: translateY(0);
+  }
+  
+  .foto-uploading {
+    height: 160px;
+  }
+}

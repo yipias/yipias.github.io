@@ -37,9 +37,9 @@ const Mapa = forwardRef(({
         title: type === 'pickup' ? 'Punto de recojo' : 
                type === 'dropoff' ? 'Destino final' : 'Punto de recojo (horas)',
         icon: {
-          url: type === 'pickup' ? 'http://maps.google.com/mapfiles/ms/icons/green-dot.png' :
-               type === 'dropoff' ? 'http://maps.google.com/mapfiles/ms/icons/red-dot.png' :
-               'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+          url: type === 'pickup' ? 'https://maps.google.com/mapfiles/ms/icons/green-dot.png' :
+               type === 'dropoff' ? 'https://maps.google.com/mapfiles/ms/icons/red-dot.png' :
+               'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
           scaledSize: new window.google.maps.Size(40, 40)
         },
         label: {
