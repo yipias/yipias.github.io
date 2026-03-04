@@ -18,14 +18,19 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>YipiAs - Reservas de Movilidad</title>
-    <script type="module" crossorigin src="/assets/index-hi4EJQql.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DjveFAuB.css">
+    <script type="module" crossorigin src="/assets/index-ooyKZKVB.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BUbZrr8h.css">
   </head>
   <body>
     <div id="root"></div>
     
     <!-- ===== GOOGLE MAPS API ===== -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCP3jgrVjb4nKEoiJM9-yPaM30hPgKmWls&libraries=places&callback=Function.prototype" async defer></script>
+    <script>
+      window.initMap = function() {
+        console.log('Google Maps API cargado correctamente');
+      };
+    </script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCP3jgrVjb4nKEoiJM9-yPaM30hPgKmWls&libraries=places&loading=async&callback=initMap" async defer></script>
     
     <!-- SCRIPT PARA GITHUB PAGES - Permite rutas como /terminos, /privacidad -->
     <script>
