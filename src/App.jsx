@@ -18,10 +18,9 @@ import ConductorRegistro from './pages/ConductorRegistro';
 
 // IMPORTACIONES PARA ADMIN
 import AdminLayout from './pages/Admin/AdminLayout';
-import AdminDashboard from './pages/Admin/AdminDashboard';
 import ConductoresPage from './pages/Admin/conductores/ConductoresPage';
 import TarifarioPage from './pages/Admin/tarifario/TarifarioPage';
-import ClientesPage from './pages/Admin/clientes/ClientesPage'; // ← NUEVA IMPORTACIÓN
+import ClientesPage from './pages/Admin/clientes/ClientesPage';
 
 import ScrollToTop from './components/ScrollToTop';
 import AuthModal from './components/Auth/AuthModal';
@@ -70,7 +69,7 @@ function App() {
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/conductores" replace />} />
           <Route path="conductores" element={<ConductoresPage />} />
-          <Route path="clientes" element={<ClientesPage />} /> {/* ← NUEVA RUTA */}
+          <Route path="clientes" element={<ClientesPage />} />
           <Route path="tarifario" element={<TarifarioPage />} />
         </Route>
 
