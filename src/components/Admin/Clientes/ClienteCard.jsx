@@ -97,7 +97,6 @@ const ClienteCard = ({ cliente, onDelete }) => {  // ← RECIBIR onDelete
         
         <div className="info-item">
           <User size={14} />
-          <span className="dni-label">DNI:</span>
           <span className="dni-value">{cliente.dni || '—'}</span>
         </div>
         

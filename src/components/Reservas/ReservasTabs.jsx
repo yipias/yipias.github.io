@@ -13,8 +13,6 @@ import FormularioPorHoras from './FormularioPorHoras';
 import MapaOriginal from './MapaOriginal';
 import AuthModal from '../Auth/AuthModal';
 // Modales
-import ExplicacionProgramada from '../Modals/ExplicacionProgramada';
-import ExplicacionPorHoras from '../Modals/ExplicacionPorHoras';
 import ConfirmacionProgramada from '../Modals/ConfirmacionProgramada';
 import ConfirmacionPorHoras from '../Modals/ConfirmacionPorHoras';
 // Firebase
@@ -38,7 +36,7 @@ const ReservasTabs = () => {
   const [mapsLoaded, setMapsLoaded] = useState(false);
   
   // Estados para pestañas y selección
-  const [activeTab, setActiveTab] = useState('');
+  const [activeTab, setActiveTab] = useState('programada');
   const [selectedInput, setSelectedInput] = useState(null);
   const [activeMode, setActiveMode] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -103,6 +101,15 @@ const ReservasTabs = () => {
       setMapsLoaded(true);
     };
   }, []);
+
+
+// ===== FORZAR PESTAÑA PROGRAMADA AL INICIAR =====
+useEffect(() => {
+  if (mapsLoaded) {
+    setActiveTab('programada');
+  }
+}, [mapsLoaded]);
+
 
  // src/components/Reservas/ReservasTabs.jsx
 // SOLO REEMPLAZA EL useEffect DEL LISTENER DE TARIFAS (línea ~118)
@@ -279,11 +286,6 @@ useEffect(() => {
     
     limpiarTodo();
     setActiveTab(tab);
-    if (tab === 'programada') {
-      modales.mostrarExplicacionProgramada();
-    } else {
-      modales.mostrarExplicacionPorHoras();
-    }
   };
 
   // ===== AGREGAR MARCADOR (LIMPIA EL ANTERIOR Y LA RUTA) =====
@@ -932,12 +934,6 @@ useEffect(() => {
         />
       )}
 
-      {modales.modalExplicacionProgramada && (
-        <ExplicacionProgramada onClose={modales.cerrarModales} />
-      )}
-      {modales.modalExplicacionHoras && (
-        <ExplicacionPorHoras onClose={modales.cerrarModales} />
-      )}
       {modales.modalConfirmacionProgramada && (
         <ConfirmacionProgramada onClose={modales.cerrarModales} />
       )}
