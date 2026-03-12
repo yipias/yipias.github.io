@@ -59,25 +59,22 @@ const AuthModal = ({ onClose, onSuccess }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // ===== FUNCIÓN PARA RESTABLECER CONTRASEÑA (CORREGIDA) =====
+  // ===== FUNCIÓN PARA RESTABLECER CONTRASEÑA =====
   const handleResetPassword = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
-      // Verificar si el correo existe en Firestore
       const emailQuery = query(collection(db, 'usuarios'), where('email', '==', resetEmail));
       const emailSnapshot = await getDocs(emailQuery);
       
       if (emailSnapshot.empty) {
-        // El correo NO está registrado
         setError('Este correo no está asociado a ninguna cuenta');
         setLoading(false);
         return;
       }
 
-      // El correo SÍ está registrado, enviar email de recuperación
       await sendPasswordResetEmail(auth, resetEmail);
       setResetSent(true);
       setSuccess('Correo de recuperación enviado. Revisa tu bandeja de entrada.');
@@ -111,10 +108,10 @@ const AuthModal = ({ onClose, onSuccess }) => {
       
       const user = userCredential.user;
 
-      // VERIFICAR SI EL EMAIL ESTÁ VERIFICADO
       if (!user.emailVerified) {
         setError('Por favor verifica tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada.');
         setLoading(false);
+        await auth.signOut();
         return;
       }
       
@@ -190,7 +187,6 @@ const AuthModal = ({ onClose, onSuccess }) => {
       const nombres = nombreCompleto.substring(0, espacioIndex).trim();
       const apellidos = nombreCompleto.substring(espacioIndex + 1).trim();
 
-      // Verificar si el DNI ya está registrado
       const dniQuery = query(collection(db, 'usuarios'), where('dni', '==', formData.dni));
       const dniSnapshot = await getDocs(dniQuery);
       
@@ -200,7 +196,6 @@ const AuthModal = ({ onClose, onSuccess }) => {
         return;
       }
 
-      // Verificar si el email ya está registrado
       const emailQuery = query(collection(db, 'usuarios'), where('email', '==', formData.email));
       const emailSnapshot = await getDocs(emailQuery);
       
@@ -210,7 +205,6 @@ const AuthModal = ({ onClose, onSuccess }) => {
         return;
       }
 
-      // Crear usuario en Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(
         auth, 
         formData.email, 
@@ -218,10 +212,12 @@ const AuthModal = ({ onClose, onSuccess }) => {
       );
       const user = userCredential.user;
 
-      // ENVIAR CORREO DE VERIFICACIÓN
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      await user.getIdToken(true);
       await sendEmailVerification(user);
 
-      // Guardar datos en Firestore
+      const currentUser = auth.currentUser;
+      
       const userData = {
         nombres: nombres,
         apellidos: apellidos,
@@ -231,12 +227,12 @@ const AuthModal = ({ onClose, onSuccess }) => {
         dni: formData.dni,
         rol: 'cliente',
         fechaRegistro: new Date().toISOString(),
-        uid: user.uid,
+        uid: currentUser.uid,
         estado: 'activo',
         emailVerified: false
       };
 
-      await setDoc(doc(db, 'usuarios', user.uid), userData);
+      await setDoc(doc(db, 'usuarios', currentUser.uid), userData);
 
       setSuccess('Registro exitoso. Hemos enviado un correo de verificación a tu email. Por favor verifica antes de iniciar sesión.');
 
@@ -264,7 +260,6 @@ const AuthModal = ({ onClose, onSuccess }) => {
     setLoading(false);
   };
 
-  // Si está en modo recuperación de contraseña
   if (resetPasswordMode) {
     return (
       <div className="auth-modal-overlay" onClick={onClose}>
@@ -346,12 +341,10 @@ const AuthModal = ({ onClose, onSuccess }) => {
       <div className="auth-modal-card" onClick={(e) => e.stopPropagation()}>
         <button className="auth-modal-close" onClick={onClose}>×</button>
         
-        {/* LOGO DE YIPIAS */}
         <div className="auth-logo">
           <img src="/img/premium.png" alt="YipiAs" />
         </div>
 
-        {/* Selector deslizante */}
         <div className="auth-slider">
           <div className={`slider-bg ${modo === 'login' ? 'login-active' : 'registro-active'}`} />
           <button 
@@ -368,7 +361,6 @@ const AuthModal = ({ onClose, onSuccess }) => {
           </button>
         </div>
 
-        {/* ENLACE PARA CONDUCTORES - WHATSAPP */}
         <div className="conductor-link">
           <span>¿Eres conductor? </span>
           <a 
