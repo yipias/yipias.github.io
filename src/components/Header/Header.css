@@ -444,3 +444,57 @@
   color: #0d6efd;
   border-left-color: #0d6efd;
 }
+
+/* Botón de ingresar - visible en todos lados */
+.user-login-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: 30px;
+  padding: 8px 16px;
+  color: #f1f5f9;
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 8px;
+}
+
+.user-login-btn:hover {
+  background: rgba(220, 38, 38, 0.2);
+  border-color: #dc2626;
+  color: #dc2626;
+  transform: translateY(-1px);
+}
+
+.user-login-btn svg {
+  stroke: currentColor;
+}
+
+/* Responsive - EL TEXTO SE VE EN TODOS LADOS */
+@media (max-width: 768px) {
+  .user-login-btn {
+    padding: 8px 16px; /* Mismo padding que desktop */
+    border-radius: 30px; /* Misma forma redondeada */
+  }
+  
+  .user-login-btn span {
+    display: inline; /* El texto siempre visible */
+  }
+  
+  .user-login-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Para pantallas muy pequeñas si quieres ajustar */
+@media (max-width: 480px) {
+  .user-login-btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+}

@@ -72,7 +72,7 @@ const Header = () => {
             
             <div className="nav-right">
               {currentUser ? (
-                // USUARIO LOGUEADO
+                // USUARIO LOGUEADO - SOLO ÍCONO Y NOMBRE
                 <div className="user-profile-wrapper">
                   <div 
                     className="user-profile"
@@ -92,13 +92,13 @@ const Header = () => {
                   )}
                 </div>
               ) : (
-                // USUARIO NO LOGUEADO
+                // USUARIO NO LOGUEADO - BOTÓN CON TEXTO "INGRESAR"
                 <button 
-                  className="user-btn" 
-                  onClick={openAuthModal} 
-                  title="Iniciar sesión / Registrarse"
+                  className="user-login-btn" 
+                  onClick={openAuthModal}
                 >
-                  <UserCircle size={28} />
+                  <UserCircle size={20} />
+                  <span>Ingresar</span>
                 </button>
               )}
               
