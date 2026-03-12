@@ -158,6 +158,8 @@
   color: var(--text);
   margin-right: 0.3rem;
   font-size: 0.9rem;
+  text-transform: none; /* ← Agrega esta línea */
+  letter-spacing: normal; /* ← Opcional, por si acaso */
 }
 
 .info-item .value {
@@ -411,5 +413,42 @@
   
   .info-content {
     width: 100%;
+  }
+}
+
+/* Botón de pago */
+.btn-pagar {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.btn-pagar:hover {
+  background: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* Ajustes para el footer en móvil */
+@media (max-width: 640px) {
+  .tarjeta-footer {
+    flex-wrap: wrap;
+  }
+  
+  .btn-pagar,
+  .btn-conductor,
+  .btn-maps {
+    flex: 1;
+    justify-content: center;
   }
 }

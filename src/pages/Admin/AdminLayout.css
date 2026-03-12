@@ -1,61 +1,171 @@
-/* src/pages/Admin/AdminLayout.css */
+/* src/pages/Admin/AdminLayout.css - VERSIÓN CORREGIDA */
 .admin-layout {
-  display: flex;
-  height: 100vh; /* Cambiado de min-height a height fijo */
-  width: 100vw;
+  min-height: 100vh;
+  width: 100%;
   background: #0a0a0a;
-  overflow: hidden; /* Evitar scroll doble */
-  position: fixed; /* Fijar en la ventana */
+  position: relative;
+}
+
+/* Contenedor del sidebar - FIJO SIEMPRE */
+.sidebar-container {
+  position: fixed;
   top: 0;
+  left: -280px;
+  width: 280px;
+  height: 100vh;
+  z-index: 1000;
+  transition: left 0.3s ease;
+  background: transparent;
+  overflow-y: auto;
+}
+
+.sidebar-container.visible {
   left: 0;
-  right: 0;
-  bottom: 0;
+}
+
+/* El sidebar interno */
+.sidebar-container .admin-sidebar {
+  min-height: 100vh;
+  height: auto;
 }
 
 .admin-content {
-  flex: 1;
-  margin-left: 280px;
   padding: 2rem;
-  height: 100vh; /* Altura completa */
-  overflow-y: auto; /* Scroll aquí si es necesario */
+  width: 100%;
+  min-height: 100vh;
+  margin-left: 0;
   transition: margin-left 0.3s ease;
-  width: calc(100% - 280px);
+  overflow-x: auto; /* Previene desbordamiento horizontal */
 }
 
-/* Personalizar scrollbar */
-.admin-content::-webkit-scrollbar {
+/* Cuando el sidebar está visible en desktop */
+@media (min-width: 769px) {
+  .sidebar-container.visible ~ .admin-content {
+    margin-left: 280px;
+  }
+}
+
+/* ===== MÓVIL - SIN HOVER, SIN BOTÓN ===== */
+@media (max-width: 768px) {
+  .admin-content {
+    padding: 1rem;
+    margin-left: 0 !important;
+    width: 100%;
+  }
+  
+  /* Sidebar SIEMPRE OCULTO en móvil - ANULADO */
+  .sidebar-container {
+    display: none; /* 👈 ELIMINAMOS EL SIDEBAR EN MÓVIL */
+  }
+  
+  .sidebar-container.visible {
+    display: none; /* Forzar que no aparezca */
+  }
+  
+  /* Aseguramos que el contenido ocupe todo */
+  .admin-layout {
+    display: block;
+  }
+  
+  /* Scroll normal en móvil */
+  .admin-content {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .admin-content {
+    padding: 0.75rem;
+  }
+}
+
+/* Scrollbar personalizado - UNIFICADO */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #dc3545 #2a2a2a;
+}
+
+::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
-.admin-content::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background: #2a2a2a;
 }
 
-.admin-content::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
   background: #dc3545;
   border-radius: 10px;
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .admin-layout {
-    position: relative; /* Cambiar a relative en móvil */
-    height: 100vh;
-  }
-
-  .admin-content {
-    margin-left: 0;
-    padding: 1rem;
-    padding-top: 5rem; /* Espacio para el botón de menú */
-    width: 100%;
-    height: 100vh;
-    overflow-y: auto; /* Asegurar scroll en móvil */
-  }
+::-webkit-scrollbar-thumb:hover {
+  background: #bb2d3b;
 }
 
-@media (max-width: 480px) {
-  .admin-content {
-    padding: 1rem;
-    padding-top: 5rem;
+/* src/pages/Admin/AdminLayout.css - AGREGAR AL FINAL */
+
+/* ===== PANTALLA DE BLOQUEO PARA MÓVIL ===== */
+.admin-mobile-block {
+  min-height: 100vh;
+  width: 100%;
+  background: #0a0a0a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: #f1f5f9;
+}
+
+.admin-mobile-block .mobile-icon {
+  color: #dc3545;
+  margin-bottom: 2rem;
+  width: 80px;
+  height: 80px;
+  stroke-width: 1.5;
+}
+
+.admin-mobile-block h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #fff, #dc3545);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.admin-mobile-block p {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1rem;
+  color: #94a3b8;
+  max-width: 400px;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.admin-mobile-block p.small {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-top: 1rem;
+}
+
+/* Animación suave */
+.admin-mobile-block {
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

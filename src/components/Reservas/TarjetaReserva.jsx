@@ -4,12 +4,14 @@ import {
   MapPin, Calendar, Clock, Users, DollarSign, Car,
   CheckCircle, XCircle, Clock as ClockIcon, Map, Phone
 } from 'lucide-react';
+import PagoModal from './PagoModal';
 import './TarjetaReserva.css';
 
 const TarjetaReserva = ({ reserva }) => {
   const mapRef = useRef(null);
   const [mapaListo, setMapaListo] = useState(false);
   const [mostrarConductor, setMostrarConductor] = useState(false);
+  const [showPagoModal, setShowPagoModal] = useState(false);
   const estado = reserva.estado || 'pendiente';
 
   // ===== MAPA =====
@@ -334,6 +336,14 @@ const TarjetaReserva = ({ reserva }) => {
 
       {/* FOOTER */}
       <div className="tarjeta-footer">
+        {estado === 'pendiente' && (
+          <button 
+            className="btn-pagar"
+            onClick={() => setShowPagoModal(true)}
+          >
+            <DollarSign size={16} /> Pagar
+          </button>
+        )}
         {tieneConductor && (
           <button 
             className="btn-conductor"
@@ -354,6 +364,14 @@ const TarjetaReserva = ({ reserva }) => {
           </a>
         )}
       </div>
+
+      {/* Modal de pago */}
+      {showPagoModal && (
+        <PagoModal 
+          onClose={() => setShowPagoModal(false)}
+          monto={reserva.precio}
+        />
+      )}
     </div>
   );
 };

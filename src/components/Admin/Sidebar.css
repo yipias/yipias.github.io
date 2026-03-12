@@ -43,31 +43,54 @@
   to { opacity: 1; }
 }
 
-/* Sidebar base */
+/* Sidebar base - AHORA OCUPA TODO EL ALTO SIEMPRE */
 .admin-sidebar {
   width: 280px;
-  height: 100vh;
+  min-height: 100vh;
+  height: 100%; /* Forzar altura completa */
   background: #1a1a1a;
   border-right: 1px solid rgba(255,255,255,0.05);
-  position: fixed;
-  left: 0;
-  top: 0;
+  position: relative;
   display: flex;
   flex-direction: column;
   z-index: 1100;
-  transition: transform 0.3s ease;
   box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+  align-self: stretch; /* Estirarse en flex container */
 }
 
-/* Sidebar en móvil */
-.admin-sidebar.mobile {
-  transform: translateX(-100%);
+/* Sidebar en móvil - SOLO EN MÓVIL SIGUE SIENDO FIJO */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .admin-sidebar.mobile.open {
+    transform: translateX(0);
+  }
+  
+  .sidebar-header {
+    padding: 1.5rem 1rem;
+  }
+  
+  .sidebar-title {
+    font-size: 1.5rem;
+  }
+  
+  .sidebar-nav {
+    padding: 1rem;
+  }
+  
+  .sidebar-footer {
+    padding: 1rem;
+  }
 }
 
-.admin-sidebar.mobile.open {
-  transform: translateX(0);
-}
-
+/* Resto de estilos se mantienen igual */
 .sidebar-header {
   padding: 2rem 1.5rem;
   border-bottom: 1px solid rgba(255,255,255,0.05);
@@ -187,25 +210,3 @@
   font-size: 0.8rem;
 }
 
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .admin-sidebar {
-    box-shadow: none;
-  }
-  
-  .sidebar-header {
-    padding: 1.5rem 1rem;
-  }
-  
-  .sidebar-title {
-    font-size: 1.5rem;
-  }
-  
-  .sidebar-nav {
-    padding: 1rem;
-  }
-  
-  .sidebar-footer {
-    padding: 1rem;
-  }
-}

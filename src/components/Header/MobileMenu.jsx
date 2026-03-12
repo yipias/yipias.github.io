@@ -1,7 +1,8 @@
 // src/components/Header/MobileMenu.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import PerfilModal from '../Auth/PerfilModal';
 
 // LISTA DE CORREOS AUTORIZADOS
 const ADMIN_EMAILS = [
@@ -11,7 +12,8 @@ const ADMIN_EMAILS = [
 
 const MobileMenu = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const { currentUser } = useAuth();
+  const { currentUser, userData } = useAuth();
+  const [showPerfil, setShowPerfil] = useState(false);
 
   // Verificar si es admin (ahora con lista)
   const isAdmin = currentUser?.email ? ADMIN_EMAILS.includes(currentUser.email) : false;
@@ -36,79 +38,103 @@ const MobileMenu = ({ isOpen, onClose }) => {
     }
   };
 
+  const handlePerfilClick = () => {
+    onClose();
+    setShowPerfil(true);
+  };
+
   return (
-    <div className={`mobile-menu ${isOpen ? 'open' : ''}`} id="mobileMenu">
-      <ul className="mobile-nav-links">
+    <>
+      <div className={`mobile-menu ${isOpen ? 'open' : ''}`} id="mobileMenu">
+        <ul className="mobile-nav-links">
 
-        {/* PANEL ADMINISTRADOR (SOLO PARA EMAILS AUTORIZADOS) */}
-        {isAdmin && (
+          {/* PANEL ADMINISTRADOR (SOLO PARA EMAILS AUTORIZADOS) */}
+          {isAdmin && (
+            <li>
+              <Link to="/admin" onClick={onClose}>
+                Panel Administrador
+              </Link>
+            </li>
+          )}
+
+          {/* MI PERFIL - SOLO SI ESTÁ LOGEADO */}
+          {currentUser && (
+            <li>
+              <button onClick={handlePerfilClick}>
+                Mi Perfil
+              </button>
+            </li>
+          )}
+
+          {/* 1. MIS RESERVAS */}
+          {currentUser && (
+            <li>
+              <Link to="/mis-reservas" onClick={onClose}>
+                Mis Reservas
+              </Link>
+            </li>
+          )}
+
+          {/* 2. ALGUNOS DESTINOS */}
           <li>
-            <Link to="/admin" onClick={onClose}>
-              Panel Administrador
+            <button onClick={() => handleScroll('destinos')}>
+              Algunos destinos
+            </button>
+          </li>
+
+          {/* 3. NUESTROS SERVICIOS */}
+          <li>
+            <button onClick={() => handleScroll('servicios')}>
+              Nuestros servicios
+            </button>
+          </li>
+
+          {/* 4. RESERVAS */}
+          <li>
+            <button onClick={handleReservasClick}>
+              Reservas
+            </button>
+          </li>
+
+          {/* 5. SOBRE NOSOTROS */}
+          <li>
+            <button onClick={() => handleScroll('sobre-nosotros')}>
+              Sobre nosotros
+            </button>
+          </li>
+
+          {/* 6. CONTACTO */}
+          <li>
+            <button onClick={() => handleScroll('contacto')}>
+              Contacto
+            </button>
+          </li>
+
+          {/* 7. TÉRMINOS Y CONDICIONES */}
+          <li className="separator-top">
+            <Link to="/terminos" onClick={onClose}>
+              Términos y Condiciones
             </Link>
           </li>
-        )}
 
-        {/* 1. MIS RESERVAS */}
-        {currentUser && (
+          {/* 8. POLÍTICAS DE PRIVACIDAD */}
           <li>
-            <Link to="/mis-reservas" onClick={onClose}>
-              Mis Reservas
+            <Link to="/privacidad" onClick={onClose}>
+              Políticas de Privacidad
             </Link>
           </li>
-        )}
 
-        {/* 2. ALGUNOS DESTINOS */}
-        <li>
-          <button onClick={() => handleScroll('destinos')}>
-            Algunos destinos
-          </button>
-        </li>
+        </ul>
+      </div>
 
-        {/* 3. NUESTROS SERVICIOS */}
-        <li>
-          <button onClick={() => handleScroll('servicios')}>
-            Nuestros servicios
-          </button>
-        </li>
-
-        {/* 4. RESERVAS */}
-        <li>
-          <button onClick={handleReservasClick}>
-            Reservas
-          </button>
-        </li>
-
-        {/* 5. SOBRE NOSOTROS */}
-        <li>
-          <button onClick={() => handleScroll('sobre-nosotros')}>
-            Sobre nosotros
-          </button>
-        </li>
-
-        {/* 6. CONTACTO */}
-        <li>
-          <button onClick={() => handleScroll('contacto')}>
-            Contacto
-          </button>
-        </li>
-
-        {/* 7. TÉRMINOS Y CONDICIONES */}
-        <li className="separator-top">
-          <Link to="/terminos" onClick={onClose}>
-            Términos y Condiciones
-          </Link>
-        </li>
-
-        {/* 8. POLÍTICAS DE PRIVACIDAD */}
-        <li>
-          <Link to="/privacidad" onClick={onClose}>
-            Políticas de Privacidad
-          </Link>
-        </li>
-
-      </ul>
-    </div>
+      {/* Modal de perfil */}
+      {showPerfil && userData && (
+        <PerfilModal 
+          userData={userData}
+          onClose={() => setShowPerfil(false)}
+        />
+      )}
+    </>
   );
 };
 
