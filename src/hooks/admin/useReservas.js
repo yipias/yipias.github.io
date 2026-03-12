@@ -9,6 +9,15 @@ export const useReservas = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Estados que generan ingreso real
+  const estadosValidos = [
+    'confirmada', 
+    'en camino', 
+    'llegó', 
+    'en transcurso', 
+    'finalizada'
+  ];
+
   // Cargar reservas
   useEffect(() => {
     const q = query(collection(db, 'reservas'), orderBy('fechaReserva', 'desc'));
@@ -70,8 +79,6 @@ export const useReservas = () => {
       if (conductorId === null) {
         await updateDoc(reservaRef, {
           conductorAsignado: null,
-          // Opcional: no cambiar el estado automáticamente
-          // updatedAt: new Date().toISOString()
         });
         return { success: true };
       }
@@ -101,7 +108,7 @@ export const useReservas = () => {
             vehiculoFrontal: conductor.fotos?.vehiculoFrontal
           }
         },
-        estado: 'confirmada' // Esto cambia el estado automáticamente al asignar
+        estado: 'confirmada'
       });
       
       return { success: true };
@@ -109,6 +116,20 @@ export const useReservas = () => {
       console.error('Error asignando conductor:', error);
       return { success: false, error };
     }
+  };
+
+  // Calcular ingresos totales (solo estados válidos)
+  const calcularIngresos = () => {
+    return reservas.reduce((total, r) => {
+      const estado = r.estado?.toLowerCase().trim();
+      const precio = r.precio;
+      
+      if (estadosValidos.includes(estado) && precio) {
+        const valor = parseFloat(precio.toString().replace('S/ ', '').replace(',', '.'));
+        if (!isNaN(valor)) return total + valor;
+      }
+      return total;
+    }, 0);
   };
 
   // Obtener estadísticas
@@ -125,10 +146,7 @@ export const useReservas = () => {
 
     const canceladasHoy = reservasHoy.filter(r => r.estado === 'cancelada').length;
 
-    const ingresosTotales = reservas.reduce((acc, r) => {
-      const precio = parseFloat(r.precio?.toString().replace('S/ ', '').replace(',', '.') || 0);
-      return acc + (isNaN(precio) ? 0 : precio);
-    }, 0);
+    const ingresosTotales = calcularIngresos();
 
     const conductoresDisponibles = conductores.length;
 
@@ -155,6 +173,7 @@ export const useReservas = () => {
     error,
     actualizarEstado,
     asignarConductor,
-    getEstadisticas
+    getEstadisticas,
+    calcularIngresos // Exportamos también esta función
   };
 };

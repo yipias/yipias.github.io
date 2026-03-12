@@ -18,6 +18,15 @@ const ReservasPage = () => {
     busqueda: ''
   });
 
+  // Estados que generan ingreso real
+  const estadosValidos = [
+    'confirmada', 
+    'en camino', 
+    'llegó', 
+    'en transcurso', 
+    'finalizada'
+  ];
+
   // Cargar usuarios para cruzar datos
   useEffect(() => {
     const fetchUsuarios = async () => {
@@ -46,38 +55,45 @@ const ReservasPage = () => {
     fetchUsuarios();
   }, []);
 
-  // ===== FILTRADO CORREGIDO (busca en todos los campos + conductor) =====
+  // Calcular ingresos en tiempo real (solo estados válidos)
+  const ingresosTotales = useMemo(() => {
+    return reservas.reduce((total, reserva) => {
+      const estado = reserva.estado?.toLowerCase().trim();
+      const precio = reserva.precio;
+      
+      if (estadosValidos.includes(estado) && precio) {
+        const valor = parseFloat(precio.toString().replace('S/ ', '').replace(',', '.'));
+        if (!isNaN(valor)) return total + valor;
+      }
+      return total;
+    }, 0);
+  }, [reservas]); // Se actualiza cuando cambian las reservas
+
+  const ingresosNetos = ingresosTotales * 0.15;
+
+  // ===== FILTRADO =====
   const reservasFiltradas = useMemo(() => {
     return reservas.filter(reserva => {
-      // Obtener datos del cliente desde usuariosMap
       const cliente = usuariosMap[reserva.email] || {};
       
-      // Filtro por fecha del servicio (coincidencia exacta con fechaViaje)
       if (filtros.fechaServicio) {
         const fechaReserva = reserva.fechaViaje || reserva.fechaServicio;
         if (fechaReserva !== filtros.fechaServicio) return false;
       }
 
-      // Filtro por tipo de reserva
       if (filtros.tipoReserva !== 'todos' && reserva.tipoReserva !== filtros.tipoReserva) {
         return false;
       }
 
-      // Filtro por búsqueda (nombre, email, teléfono, DNI, CONDUCTOR)
       if (filtros.busqueda) {
         const texto = filtros.busqueda.toLowerCase().trim();
         
-        // Campos de la reserva
         const nombreReserva = (reserva.nombreCompleto || '').toLowerCase();
         const emailReserva = (reserva.email || '').toLowerCase();
         const telefonoReserva = (reserva.telefono || '').toLowerCase();
-        
-        // Campos del cliente (desde usuariosMap)
         const nombreCliente = (cliente.nombreCompleto || '').toLowerCase();
         const telefonoCliente = (cliente.telefono || '').toLowerCase();
         const dniCliente = (cliente.dni || '').toLowerCase();
-
-        // Campos del conductor (NUEVO)
         const nombreConductor = (reserva.conductorAsignado?.nombre || '').toLowerCase();
 
         const coincide =
@@ -87,7 +103,7 @@ const ReservasPage = () => {
           nombreCliente.includes(texto) ||
           telefonoCliente.includes(texto) ||
           dniCliente.includes(texto) ||
-          nombreConductor.includes(texto); // ← NUEVO: buscar por nombre del conductor
+          nombreConductor.includes(texto);
 
         if (!coincide) return false;
       }
@@ -163,7 +179,12 @@ const ReservasPage = () => {
         </button>
       </div>
 
-      <ReservasStats stats={stats} />
+      <ReservasStats 
+        stats={stats}
+        conductoresActivos={conductores.length}
+        ingresosTotales={ingresosTotales}
+        ingresosNetos={ingresosNetos}
+      />
 
       <ReservasFiltros filtros={filtros} setFiltros={setFiltros} />
 

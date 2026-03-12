@@ -41,22 +41,30 @@ const ReservasTabla = ({ reservas, conductores, onActualizarEstado, onAsignarCon
   }, []);
 
   // Ordenar reservas: primero no finalizadas (por fecha), luego finalizadas (por fecha)
-  const reservasOrdenadas = [...reservas].sort((a, b) => {
-    const estadoA = a.estado || 'pendiente';
-    const estadoB = b.estado || 'pendiente';
-    
-    const esFinalizadaA = estadoA === 'finalizada';
-    const esFinalizadaB = estadoB === 'finalizada';
-    
-    // Si una es finalizada y la otra no, la finalizada va después
-    if (esFinalizadaA && !esFinalizadaB) return 1;
-    if (!esFinalizadaA && esFinalizadaB) return -1;
-    
-    // Si ambas son finalizadas o ambas no finalizadas, ordenar por fecha
-    const fechaA = a.fechaViaje || a.fechaServicio || '9999-99-99';
-    const fechaB = b.fechaViaje || b.fechaServicio || '9999-99-99';
-    return fechaA.localeCompare(fechaB);
-  });
+const reservasOrdenadas = [...reservas].sort((a, b) => {
+  const estadoA = a.estado || 'pendiente';
+  const estadoB = b.estado || 'pendiente';
+  
+  // Definir prioridad: 0 = activa, 1 = finalizada, 2 = cancelada
+  const getPrioridad = (estado) => {
+    if (estado === 'cancelada') return 2;
+    if (estado === 'finalizada') return 1;
+    return 0; // pendiente, confirmada, en camino, llegó, en transcurso
+  };
+  
+  const prioridadA = getPrioridad(estadoA);
+  const prioridadB = getPrioridad(estadoB);
+  
+  // Si tienen diferente prioridad, ordenar por prioridad
+  if (prioridadA !== prioridadB) {
+    return prioridadA - prioridadB;
+  }
+  
+  // Si misma prioridad, ordenar por fecha
+  const fechaA = a.fechaViaje || a.fechaServicio || '9999-99-99';
+  const fechaB = b.fechaViaje || b.fechaServicio || '9999-99-99';
+  return fechaA.localeCompare(fechaB);
+});
 
   const formatFechaServicio = (reserva) => {
     const fechaServicio = reserva.fechaViaje || reserva.fechaServicio;

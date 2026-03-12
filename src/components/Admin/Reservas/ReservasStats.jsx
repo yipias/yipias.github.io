@@ -1,47 +1,14 @@
 // src/components/Admin/Reservas/ReservasStats.jsx
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Users, Car, Calendar, XCircle, DollarSign, TrendingUp } from 'lucide-react';
 import './ReservasStats.css';
 
-const ReservasStats = ({ stats }) => {
-  const [conductoresActivos, setConductoresActivos] = useState(0);
-  const [ingresosTotales, setIngresosTotales] = useState(0);
-  const [ingresosNetos, setIngresosNetos] = useState(0);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { collection, query, where, getDocs } = await import('firebase/firestore');
-        const { db } = await import('../../../firebase/config');
-
-        // Conductores activos/aprobados
-        const qConductores = query(
-          collection(db, 'conductores'),
-          where('estado', 'in', ['activo', 'aprobado'])
-        );
-        const snapConductores = await getDocs(qConductores);
-        setConductoresActivos(snapConductores.size);
-
-        // Ingresos desde reservas (todas, no solo hoy)
-        const snapReservas = await getDocs(collection(db, 'reservas'));
-        let total = 0;
-        snapReservas.forEach(doc => {
-          const precio = doc.data().precio;
-          if (precio) {
-            const valor = parseFloat(precio.toString().replace('S/ ', '').replace(',', '.'));
-            if (!isNaN(valor)) total += valor;
-          }
-        });
-        setIngresosTotales(total);
-        setIngresosNetos(total * 0.15);
-      } catch (err) {
-        console.error('Error cargando stats:', err);
-      }
-    };
-
-    fetchData();
-  }, []);
-
+const ReservasStats = ({ 
+  stats, 
+  conductoresActivos, 
+  ingresosTotales, 
+  ingresosNetos 
+}) => {
   const cards = [
     {
       icon: <Car size={20} />,
