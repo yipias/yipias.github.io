@@ -1,5 +1,6 @@
 // src/components/Reservas/ReservasTabs.jsx
 import React, { useState, useRef, useEffect } from 'react';
+import { useJsApiLoader } from '@react-google-maps/api';
 import { useLimpiarInputs } from '../../hooks/useLimpiarInputs';
 import { useFechaMinima } from '../../hooks/useFechaMinima';
 import { useValidaciones } from '../../hooks/useValidaciones';
@@ -31,9 +32,11 @@ const ReservasTabs = () => {
   const modales = useModales();
   const { guardarReservaProgramada, guardarReservaHoras } = useFirebaseReservas();
   const { currentUser } = useAuth();
-  
-  // Estado para Maps
-  const [mapsLoaded, setMapsLoaded] = useState(false);
+
+  const { isLoaded } = useJsApiLoader({
+  googleMapsApiKey: "AIzaSyCP3jgrVjb4nKEoiJM9-yPaM30hPgKmWls",
+  libraries: ["places"]
+});
   
   // Estados para pestañas y selección
   const [activeTab, setActiveTab] = useState('programada');
@@ -52,11 +55,11 @@ const ReservasTabs = () => {
   const [horasLocation, setHorasLocation] = useState(null);
   
   // Estados para marcadores
-  const [markers, setMarkers] = useState({
-    pickup: null,
-    dropoff: null,
-    horas: null
-  });
+const markersRef = useRef({
+  pickup: null,
+  dropoff: null,
+  horas: null
+});
   
   // Estados para hora con AM/PM
   const { ampm: progAmpm, setAmpm: setProgAmpm, formatearHoraParaFirebase } = useFormatoHoraAMPM();
@@ -95,29 +98,6 @@ const ReservasTabs = () => {
       }
     }
   };
-
-  // ===== EFECTO PARA VERIFICAR CARGA DE MAPS =====
-  useEffect(() => {
-    const checkMapsLoaded = () => {
-      if (window.google && window.google.maps) {
-        console.log('✅ Google Maps listo');
-        setMapsLoaded(true);
-      } else {
-        console.log('⏳ Esperando Google Maps...');
-        setTimeout(checkMapsLoaded, 200);
-      }
-    };
-
-    if (window.google?.maps) {
-      setMapsLoaded(true);
-    } else {
-      checkMapsLoaded();
-    }
-
-    window.initMap = function() {
-      setMapsLoaded(true);
-    };
-  }, []);
 
   // ===== EFECTO PARA ESCUCHAR CAMBIOS EN TARIFAS =====
   useEffect(() => {
@@ -190,8 +170,8 @@ const ReservasTabs = () => {
       if (pickupInput && pickupInput.value.trim() === '') {
         setPickupLocation(null);
 
-        if (markers.pickup) {
-          markers.pickup.setMap(null);
+        if (markersRef.current.pickup) {
+          markersRef.current.pickup.setMap(null);
         }
 
         limpiarRuta();
@@ -208,8 +188,8 @@ const ReservasTabs = () => {
       if (dropoffInput && dropoffInput.value.trim() === '') {
         setDropoffLocation(null);
 
-        if (markers.dropoff) {
-          markers.dropoff.setMap(null);
+        if (markersRef.current.dropoff) {
+          markersRef.current.dropoff.setMap(null);
         }
 
         limpiarRuta();
@@ -248,15 +228,16 @@ const ReservasTabs = () => {
     setProgAmpm('AM');
     setHorasAmpm('AM');
     
-    Object.values(markers).forEach(marker => {
-      if (marker) marker.setMap(null);
-    });
+Object.values(markersRef.current).forEach(marker => {
+  if (marker) marker.setMap(null);
+});
+
+markersRef.current = {
+  pickup: null,
+  dropoff: null,
+  horas: null
+};
     
-    setMarkers({
-      pickup: null,
-      dropoff: null,
-      horas: null
-    });
     
     limpiarRuta();
     
@@ -285,53 +266,45 @@ const ReservasTabs = () => {
   };
 
   // ===== AGREGAR MARCADOR =====
-  const addMarker = (type, location, address, placeName = null) => {
-    if (!mapRef.current || !window.google) return;
-    
-    console.log(`📍 Agregando marcador tipo: ${type}`, location);
-    
-    if (type === 'pickup' || type === 'dropoff') {
-      limpiarRuta();
-    }
-    
-    if (markers[type]) {
-      markers[type].setMap(null);
-    }
-    
-    const title = type === 'pickup' ? 'Punto de recojo' : 
-                  type === 'dropoff' ? 'Destino final' : 'Punto de recojo (horas)';
-    
-    const markerTitle = placeName || title;
-    
-    const iconConfig = {
-      url: type === 'pickup' ? 'https://maps.google.com/mapfiles/ms/icons/green-dot.png' :
-           type === 'dropoff' ? 'https://maps.google.com/mapfiles/ms/icons/red-dot.png' :
-           'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+const addMarker = (type, location, address, placeName = null) => {
+
+  if (!mapRef.current || !window.google) return;
+
+  console.log(`📍 Agregando marcador tipo: ${type}`, location);
+
+  const markers = markersRef.current;
+
+  // eliminar anterior
+  if (markers[type]) {
+    markers[type].setMap(null);
+  }
+
+  const marker = new window.google.maps.Marker({
+    position: location,
+    map: mapRef.current,
+    title: placeName || address,
+    icon: {
+      url:
+        type === 'pickup'
+          ? 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'
+          : type === 'dropoff'
+          ? 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+          : 'https://maps.google.com/mapfiles/ms/icons/blue-dot.png',
       scaledSize: new window.google.maps.Size(40, 40)
-    };
-    
-    const labelConfig = {
+    },
+    label: {
       text: type === 'pickup' ? 'A' : type === 'dropoff' ? 'B' : 'H',
       color: 'white',
       fontSize: '14px',
       fontWeight: 'bold'
-    };
-    
-    const markerConfig = {
-      position: location,
-      map: mapRef.current,
-      title: markerTitle,
-      icon: iconConfig,
-      label: labelConfig
-    };
-    
-    const newMarker = new window.google.maps.Marker(markerConfig);
-    
-    setMarkers(prev => ({ ...prev, [type]: newMarker }));
-    
-    mapRef.current.panTo(location);
-    mapRef.current.setZoom(15);
-  };
+    }
+  });
+
+  markers[type] = marker;
+
+  mapRef.current.panTo(location);
+  mapRef.current.setZoom(15);
+};
 
   // ===== CALCULAR RUTA Y PRECIO =====
   const calcularRutaYDistancia = (origin, destination) => {
@@ -516,8 +489,8 @@ const ReservasTabs = () => {
   }, [activeTab, horasLocation, tarifasVersion]);
 
   // ===== CONFIGURAR AUTOCOMPLETADOS =====
-  useEffect(() => {
-    if (!mapRef.current || !window.google || !mapsLoaded) return;
+useEffect(() => {
+  if (!mapRef.current || !window.google || !isLoaded) return;
 
     if (autocompleteRefs.current.pickup) {
       window.google.maps.event.clearInstanceListeners(autocompleteRefs.current.pickup);
@@ -615,16 +588,16 @@ const ReservasTabs = () => {
         window.google.maps.event.clearInstanceListeners(autocompleteRefs.current.horas);
       }
     };
-  }, [mapRef.current, activeTab, mapsLoaded]);
+  }, [isLoaded]);
 
   const handleMapReady = (map) => {
     mapRef.current = map;
   };
 
   const handlePlaceSelected = (inputType, address, location, placeName = null) => {
-    if (markers[inputType]) {
-      markers[inputType].setMap(null);
-    }
+if (markersRef.current[inputType]) {
+  markersRef.current[inputType].setMap(null);
+}
     
     if (inputType === 'pickup') {
       setPickupAddress(address);
@@ -867,37 +840,33 @@ const ReservasTabs = () => {
         <div className="grid">
           <div className="col form-col">
             {activeTab === 'programada' ? (
-              <FormularioProgramada 
-                pickupAddress={pickupAddress}
-                dropoffAddress={dropoffAddress}
-                setPickupAddress={setPickupAddress}
-                setDropoffAddress={setDropoffAddress}
-                onSelectInMap={handleSelectInMap}
-                onReservar={handleReservaProgramada}
-                onUbicacionActual={handleUbicacionActualPickup}
-                activeMode={activeMode}
-                horaValue={progHora}
-                onHoraChange={setProgHora}
-                ampm={progAmpm}
-                onAmpmChange={setProgAmpm}
-                markers={markers}
-                setMarkers={setMarkers}
-              />
+<FormularioProgramada 
+  pickupAddress={pickupAddress}
+  dropoffAddress={dropoffAddress}
+  setPickupAddress={setPickupAddress}
+  setDropoffAddress={setDropoffAddress}
+  onSelectInMap={handleSelectInMap}
+  onReservar={handleReservaProgramada}
+  onUbicacionActual={handleUbicacionActualPickup}
+  activeMode={activeMode}
+  horaValue={progHora}
+  onHoraChange={setProgHora}
+  ampm={progAmpm}
+  onAmpmChange={setProgAmpm}
+/>
             ) : activeTab === 'porhoras' ? (
-              <FormularioPorHoras 
-                horasAddress={horasAddress}
-                setHorasAddress={setHorasAddress}
-                onSelectInMap={handleSelectInMap}
-                onReservar={handleReservaHoras}
-                onUbicacionActual={handleUbicacionActualHoras}
-                activeMode={activeMode}
-                horaValue={horasHora}
-                onHoraChange={setHorasHora}
-                ampm={horasAmpm}
-                onAmpmChange={setHorasAmpm}
-                markers={markers}
-                setMarkers={setMarkers}
-              />
+<FormularioPorHoras 
+  horasAddress={horasAddress}
+  setHorasAddress={setHorasAddress}
+  onSelectInMap={handleSelectInMap}
+  onReservar={handleReservaHoras}
+  onUbicacionActual={handleUbicacionActualHoras}
+  activeMode={activeMode}
+  horaValue={horasHora}
+  onHoraChange={setHorasHora}
+  ampm={horasAmpm}
+  onAmpmChange={setHorasAmpm}
+/>
             ) : (
               <div className="form" style={{ padding: '2rem', textAlign: 'center' }}>
                 <p>Selecciona un tipo de reserva para comenzar</p>
@@ -907,18 +876,18 @@ const ReservasTabs = () => {
           
           <div className="col map-col">
             <div className="map">
-              {mapsLoaded ? (
-                <MapaOriginal 
-                  onMapReady={handleMapReady}
-                  onMapClick={handlePlaceSelected}
-                  selectedInput={selectedInput}
-                />
-              ) : (
-                <div className="map-loading">
-                  <div className="spinner"></div>
-                  <p>Cargando mapa...</p>
-                </div>
-              )}
+{isLoaded ? (
+  <MapaOriginal 
+    onMapReady={handleMapReady}
+    onMapClick={handlePlaceSelected}
+    selectedInput={selectedInput}
+  />
+) : (
+  <div className="map-loading">
+    <div className="spinner"></div>
+    <p>Cargando mapa...</p>
+  </div>
+)}
             </div>
           </div>
         </div>

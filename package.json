@@ -13,6 +13,7 @@
     "deploy-full": "git add . && git commit -m \"Actualización\" && git push origin master && npm run deploy"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.8",
     "firebase": "^12.9.0",
     "lucide-react": "^0.575.0",
     "react": "^19.2.0",
