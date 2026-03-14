@@ -1,6 +1,6 @@
 // src/components/Admin/Reservas/ReservasTabla.jsx
 import React, { useState, useEffect } from 'react';
-import { Eye, Car } from 'lucide-react'; // 👈 Eliminamos Phone de aquí
+import { Eye, Car, Phone } from 'lucide-react';
 import AsignarConductorDropdown from './AsignarConductorDropdown';
 import EstadoDropdown from './EstadoDropdown';
 import ModalCliente from './ModalCliente';
@@ -12,7 +12,6 @@ const ReservasTabla = ({ reservas, conductores, onActualizarEstado, onAsignarCon
   const [modalConductor, setModalConductor] = useState(null);
   const [usuariosMap, setUsuariosMap] = useState({});
 
-  // Cargar usuarios para cruzar datos
   useEffect(() => {
     const fetchUsuarios = async () => {
       try {
@@ -40,31 +39,25 @@ const ReservasTabla = ({ reservas, conductores, onActualizarEstado, onAsignarCon
     fetchUsuarios();
   }, []);
 
-  // Ordenar reservas: primero no finalizadas (por fecha), luego finalizadas (por fecha)
-const reservasOrdenadas = [...reservas].sort((a, b) => {
-  const estadoA = a.estado || 'pendiente';
-  const estadoB = b.estado || 'pendiente';
-  
-  // Definir prioridad: 0 = activa, 1 = finalizada, 2 = cancelada
-  const getPrioridad = (estado) => {
-    if (estado === 'cancelada') return 2;
-    if (estado === 'finalizada') return 1;
-    return 0; // pendiente, confirmada, en camino, llegó, en transcurso
-  };
-  
-  const prioridadA = getPrioridad(estadoA);
-  const prioridadB = getPrioridad(estadoB);
-  
-  // Si tienen diferente prioridad, ordenar por prioridad
-  if (prioridadA !== prioridadB) {
-    return prioridadA - prioridadB;
-  }
-  
-  // Si misma prioridad, ordenar por fecha
-  const fechaA = a.fechaViaje || a.fechaServicio || '9999-99-99';
-  const fechaB = b.fechaViaje || b.fechaServicio || '9999-99-99';
-  return fechaA.localeCompare(fechaB);
-});
+  const reservasOrdenadas = [...reservas].sort((a, b) => {
+    const estadoA = a.estado || 'pendiente';
+    const estadoB = b.estado || 'pendiente';
+    
+    const getPrioridad = (estado) => {
+      if (estado === 'cancelada') return 2;
+      if (estado === 'finalizada') return 1;
+      return 0;
+    };
+    
+    const prioridadA = getPrioridad(estadoA);
+    const prioridadB = getPrioridad(estadoB);
+    
+    if (prioridadA !== prioridadB) return prioridadA - prioridadB;
+    
+    const fechaA = a.fechaViaje || a.fechaServicio || '9999-99-99';
+    const fechaB = b.fechaViaje || b.fechaServicio || '9999-99-99';
+    return fechaA.localeCompare(fechaB);
+  });
 
   const formatFechaServicio = (reserva) => {
     const fechaServicio = reserva.fechaViaje || reserva.fechaServicio;
@@ -79,25 +72,21 @@ const reservasOrdenadas = [...reservas].sort((a, b) => {
     return reserva.horaOriginal || reserva.horaInicio || '—';
   };
 
-// DESPUÉS - Corregido
-const getClienteData = (reserva) => {
-  // Si la reserva ya tiene los datos del cliente guardados, úsalos directamente
-  if (reserva.nombreCompleto || reserva.telefono || reserva.dni) {
+  const getClienteData = (reserva) => {
+    if (reserva.nombreCompleto || reserva.telefono || reserva.dni) {
+      return {
+        nombre: reserva.nombreCompleto || reserva.email || '—',
+        telefono: reserva.telefono || '—',
+        dni: reserva.dni || '—'
+      };
+    }
+    const usuario = usuariosMap[reserva.email];
     return {
-      nombre: reserva.nombreCompleto || reserva.email || '—',
-      telefono: reserva.telefono || '—',
-      dni: reserva.dni || '—'
+      nombre: usuario?.nombreCompleto || reserva.email || '—',
+      telefono: usuario?.telefono || '—',
+      dni: usuario?.dni || '—'
     };
-  }
-  
-  // Si no, intenta obtenerlos del mapa de usuarios
-  const usuario = usuariosMap[reserva.email];
-  return {
-    nombre: usuario?.nombreCompleto || reserva.email || '—',
-    telefono: usuario?.telefono || '—',
-    dni: usuario?.dni || '—'
   };
-};
 
   const handleWhatsApp = (telefono) => {
     if (telefono && telefono !== '—') {
@@ -125,10 +114,8 @@ const getClienteData = (reserva) => {
             const cliente = getClienteData(reserva);
             return (
               <tr key={reserva.id}>
-                {/* Número de orden */}
                 <td className="numero-cell">{index + 1}</td>
                 
-                {/* Fecha y hora del servicio (fecha arriba, hora abajo) */}
                 <td>
                   <div className="fecha-servicio-cell">
                     <span className="fecha-dia">{formatFechaServicio(reserva)}</span>
@@ -142,29 +129,26 @@ const getClienteData = (reserva) => {
                     <strong title={cliente.nombre}>{cliente.nombre}</strong>
                     <div className="cliente-buttons">
                       <button 
-                        className="btn-icon"
+                        className="rt-btn-icono rt-btn-ver-cliente"
                         onClick={() => setModalCliente(reserva)}
-                        title="Ver detalles del cliente"
+                        title="Ver detalles del servicio"
                       >
                         <Eye size={14} />
                       </button>
                       {cliente.telefono !== '—' && (
                         <button 
-                          className="btn-icon btn-whatsapp"
+                          className="rt-btn-icono rt-btn-wp-cliente"
                           onClick={() => handleWhatsApp(cliente.telefono)}
-                          title="WhatsApp cliente"
+                          title="WhatsApp del cliente"
                         >
-                          <span style={{ color: '#25d366', fontSize: '16px' }}>📱</span>
+                          <Phone size={14} />
                         </button>
                       )}
                     </div>
                   </div>
                 </td>
                 
-                {/* DNI */}
                 <td className="dni-cell">{cliente.dni}</td>
-                
-                {/* Teléfono */}
                 <td className="telefono-cell">{cliente.telefono}</td>
                 
                 {/* Conductor con botones */}
@@ -178,7 +162,7 @@ const getClienteData = (reserva) => {
                     {reserva.conductorAsignado && (
                       <>
                         <button 
-                          className="btn-icon conductor-btn"
+                          className="rt-btn-icono rt-btn-ver-conductor"
                           onClick={() => setModalConductor(reserva)}
                           title="Ver datos del conductor"
                         >
@@ -186,11 +170,11 @@ const getClienteData = (reserva) => {
                         </button>
                         {reserva.conductorAsignado.telefono && (
                           <button 
-                            className="btn-icon btn-whatsapp"
+                            className="rt-btn-icono rt-btn-wp-conductor"
                             onClick={() => handleWhatsApp(reserva.conductorAsignado.telefono)}
-                            title="WhatsApp conductor"
+                            title="WhatsApp del conductor"
                           >
-                            <span style={{ color: '#25d366', fontSize: '16px' }}>📱</span>
+                            <Phone size={14} />
                           </button>
                         )}
                       </>
@@ -198,7 +182,6 @@ const getClienteData = (reserva) => {
                   </div>
                 </td>
                 
-                {/* Estado */}
                 <td>
                   <EstadoDropdown 
                     reserva={reserva}
@@ -206,7 +189,6 @@ const getClienteData = (reserva) => {
                   />
                 </td>
                 
-                {/* Precio */}
                 <td className="precio-cell">{reserva.precio || '—'}</td>
               </tr>
             );

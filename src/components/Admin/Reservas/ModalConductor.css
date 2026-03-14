@@ -111,7 +111,7 @@
   gap: 14px;
 }
 
-/* ── Foto perfil ── */
+/* ── Foto perfil (estática) ── */
 .conductor-foto-perfil-wrap {
   position: relative;
   width: 100px;
@@ -129,13 +129,6 @@
   height: 100%;
   object-fit: cover;
   display: block;
-}
-
-.conductor-foto-perfil-overlay {
-  position: absolute;
-  bottom: 6px;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 /* ── Identidad ── */
@@ -195,42 +188,53 @@
   color: #dc2626;
 }
 
-/* ── Foto vehículo ── */
+/* ── Foto vehículo: drag + zoom (una sola definición) ── */
 .conductor-foto-vehiculo-wrap {
   position: relative;
   width: 100%;
   aspect-ratio: 16/9;
   border-radius: 14px;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.06);
-  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background-color: rgba(0, 0, 0, 0.4); /* fallback mientras carga */
+  /* backgroundImage, backgroundSize, backgroundPosition se aplican desde el JSX */
+  user-select: none;
+  -webkit-user-select: none;
 }
 
-.conductor-foto-vehiculo-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.4s ease;
-}
-
-.conductor-foto-vehiculo-wrap:hover img {
-  transform: scale(1.03);
-}
-
-.conductor-foto-label {
+/* Hint inferior */
+.vehiculo-drag-hint {
   position: absolute;
   bottom: 8px;
-  left: 8px;
-  background: rgba(0, 0, 0, 0.65);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(6px);
-  border-radius: 6px;
-  padding: 3px 8px;
+  color: rgba(255, 255, 255, 0.85);
   font-size: 10px;
-  font-weight: 600;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+/* Badge porcentaje de zoom */
+.vehiculo-zoom-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  color: #fbbf24;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 20px;
+  pointer-events: none;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 /* ── Grid vehículo ── */

@@ -1,4 +1,4 @@
-/* src/components/Admin/Reservas/ReservasTabla.css - VERSIÓN CORREGIDA */
+/* src/components/Admin/Reservas/ReservasTabla.css */
 .reservas-tabla-container {
   background: #12121a;
   border: 1px solid rgba(220, 38, 38, 0.2);
@@ -72,7 +72,7 @@
   text-align: center;
 }
 
-/* ── Fecha servicio (fecha arriba, hora abajo) ── */
+/* ── Fecha servicio ── */
 .fecha-servicio-cell {
   display: flex;
   flex-direction: column;
@@ -115,6 +115,7 @@
 
 .cliente-buttons {
   display: flex;
+  align-items: center;
   gap: 4px;
   flex-shrink: 0;
 }
@@ -145,10 +146,14 @@
   min-width: 100px;
 }
 
-/* ── Icon buttons ── */
-.btn-icon {
+/* ══════════════════════════════════════════
+   BOTONES CON PREFIJO rt- (ReservasTabla)
+   para evitar colisiones con CSS global
+══════════════════════════════════════════ */
+
+/* Base compartida */
+.rt-btn-icono {
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 6px;
   width: 28px;
   height: 28px;
@@ -156,60 +161,90 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   flex-shrink: 0;
+  padding: 0;
 }
 
-.btn-icon svg {
+.rt-btn-icono svg {
   width: 14px;
   height: 14px;
   display: block;
 }
 
-/* ===== BOTÓN WHATSAPP CLIENTE ===== */
-.btn-icon.btn-whatsapp {
-  border: 1px solid #25d366 !important;
-  background: transparent !important;
+/* ── Ver cliente (gris/blanco) ── */
+.rt-btn-ver-cliente {
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
-.btn-icon.btn-whatsapp svg {
-  color: #25d366 !important;
-  stroke: #25d366 !important;
-  fill: none !important;
+.rt-btn-ver-cliente svg {
+  color: #94a3b8;
+  stroke: #94a3b8;
 }
 
-.btn-icon.btn-whatsapp:hover {
-  background: rgba(37, 211, 102, 0.15) !important;
-  border-color: #25d366 !important;
+.rt-btn-ver-cliente:hover {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.06);
   transform: scale(1.08);
 }
 
-.btn-icon.btn-whatsapp:hover svg {
-  color: #25d366 !important;
-  stroke: #25d366 !important;
+.rt-btn-ver-cliente:hover svg {
+  color: #f1f5f9;
+  stroke: #f1f5f9;
 }
 
-/* ===== BOTÓN WHATSAPP CONDUCTOR ===== */
-.btn-icon.conductor-btn {
-  border: 1px solid #3b82f6 !important;
-  background: transparent !important;
+/* ── WhatsApp cliente (verde) ── */
+.rt-btn-wp-cliente {
+  border: 1px solid #25d366;
+  background: transparent;
 }
 
-.btn-icon.conductor-btn svg {
-  color: #3b82f6 !important;
-  stroke: #3b82f6 !important;
-  fill: none !important;
+.rt-btn-wp-cliente svg {
+  color: #25d366;
+  stroke: #25d366;
+  fill: none;
 }
 
-.btn-icon.conductor-btn:hover {
-  background: rgba(59, 130, 246, 0.15) !important;
-  border-color: #3b82f6 !important;
+.rt-btn-wp-cliente:hover {
+  background: rgba(37, 211, 102, 0.15);
+  border-color: #25d366;
   transform: scale(1.08);
 }
 
-.btn-icon.conductor-btn:hover svg {
-  color: #3b82f6 !important;
-  stroke: #3b82f6 !important;
+/* ── Ver conductor (azul) ── */
+.rt-btn-ver-conductor {
+  border: 1px solid #3b82f6;
+  background: transparent;
+}
+
+.rt-btn-ver-conductor svg {
+  color: #3b82f6;
+  stroke: #3b82f6;
+  fill: none;
+}
+
+.rt-btn-ver-conductor:hover {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: #3b82f6;
+  transform: scale(1.08);
+}
+
+/* ── WhatsApp conductor (verde) ── */
+.rt-btn-wp-conductor {
+  border: 1px solid #25d366;
+  background: transparent;
+}
+
+.rt-btn-wp-conductor svg {
+  color: #25d366;
+  stroke: #25d366;
+  fill: none;
+}
+
+.rt-btn-wp-conductor:hover {
+  background: rgba(37, 211, 102, 0.15);
+  border-color: #25d366;
+  transform: scale(1.08);
 }
 
 /* ── Price cell ── */
@@ -223,14 +258,14 @@
 }
 
 /* ── Anchos de columna ── */
-.reservas-tabla th:nth-child(1) { width: 50px; }   /* # */
-.reservas-tabla th:nth-child(2) { width: 130px; }  /* Fecha/Hora */
-.reservas-tabla th:nth-child(3) { width: 180px; }  /* Cliente */
-.reservas-tabla th:nth-child(4) { width: 90px; }   /* DNI */
-.reservas-tabla th:nth-child(5) { width: 100px; }  /* Teléfono */
-.reservas-tabla th:nth-child(6) { width: 220px; }  /* Conductor */
-.reservas-tabla th:nth-child(7) { width: 110px; }  /* Estado */
-.reservas-tabla th:nth-child(8) { width: 90px; }   /* Precio */
+.reservas-tabla th:nth-child(1) { width: 50px; }
+.reservas-tabla th:nth-child(2) { width: 130px; }
+.reservas-tabla th:nth-child(3) { width: 180px; }
+.reservas-tabla th:nth-child(4) { width: 90px; }
+.reservas-tabla th:nth-child(5) { width: 100px; }
+.reservas-tabla th:nth-child(6) { width: 220px; }
+.reservas-tabla th:nth-child(7) { width: 110px; }
+.reservas-tabla th:nth-child(8) { width: 90px; }
 
 /* ── Empty state ── */
 .tabla-empty {
