@@ -364,7 +364,7 @@ const AuthModal = ({ onClose, onSuccess }) => {
         <div className="conductor-link">
           <span>¿Eres conductor? </span>
           <a 
-            href="https://wa.me/51904635462?text=¡Hola!%20Deseo%20más%20información%20para%20ser%20conductor%20de%20YipiAs%20Premium."
+            href="https://wa.me/51935893062?text=¡Hola!%20Deseo%20más%20información%20para%20ser%20conductor%20de%20YipiAs%20Premium."
             target="_blank" 
             rel="noopener noreferrer"
           >

@@ -323,7 +323,7 @@ const FormularioConductor = ({ onSubmit, loading }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!terminos) {
-      alert('Debes aceptar los términos y condiciones');
+      alert('Para continuar debes aceptar tu declaración jurada');
       return;
     }
     
@@ -691,7 +691,7 @@ const FormularioConductor = ({ onSubmit, loading }) => {
           onChange={(e) => setTerminos(e.target.checked)}
         />
         <CheckCircle size={16} className={`checkbox-icon ${terminos ? 'checked' : ''}`} />
-        <span>Confirmo que la información es verídica.</span>
+        <span>Declaro bajo juramento que la información y documentos proporcionados son verídicos y que no registro antecedentes penales ni judiciales vigentes. Asimismo, reconozco que YipiAs actúa únicamente como plataforma tecnológica de intermediación que presto el servicio de transporte de manera independiente, asumiendo plena responsabilidad por cualquier falsedad u omisión en la información proporcionada.</span>
       </label>
 
       {/* Botón */}
