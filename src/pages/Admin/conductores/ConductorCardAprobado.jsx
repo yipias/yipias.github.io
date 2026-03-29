@@ -1,6 +1,6 @@
 // src/pages/Admin/conductores/ConductorCardAprobado.jsx
 import React from 'react';
-import { User, Calendar, Phone, Eye, RotateCcw, CheckCircle, Car } from 'lucide-react'; // ← AGREGAMOS Car
+import { User, Calendar, Phone, Eye, RotateCcw, CheckCircle, Car, Hash } from 'lucide-react';
 import { useAdminConductores } from '../../../hooks/useAdminConductores';
 import './ConductorCardAprobado.css';
 
@@ -9,30 +9,18 @@ const ConductorCardAprobado = ({ conductor, onVerDetalle }) => {
 
   const formatFecha = (fecha) => {
     if (!fecha) return 'Fecha no disponible';
-    
+
     try {
       if (fecha?.seconds) {
         const date = new Date(fecha.seconds * 1000);
-        return date.toLocaleDateString('es-PE', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        });
+        return date.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
       }
       if (fecha instanceof Date) {
-        return fecha.toLocaleDateString('es-PE', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        });
+        return fecha.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
       }
       const date = new Date(fecha);
       if (!isNaN(date.getTime())) {
-        return date.toLocaleDateString('es-PE', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric'
-        });
+        return date.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
       }
       return 'Fecha no disponible';
     } catch (error) {
@@ -49,10 +37,7 @@ const ConductorCardAprobado = ({ conductor, onVerDetalle }) => {
 
   const handleRevocar = async (e) => {
     e.stopPropagation();
-    const result = await revocarConductor(conductor.id);
-    if (result.success) {
-      console.log('Conductor revocado a pendiente');
-    }
+    await revocarConductor(conductor.id);
   };
 
   return (
@@ -60,6 +45,14 @@ const ConductorCardAprobado = ({ conductor, onVerDetalle }) => {
       <div className="card-badge aprobado">
         <CheckCircle size={12} /> Aprobado
       </div>
+
+      {/* ✅ Código YPP visible en la card */}
+      {conductor.codigoYPP && (
+        <div className="card-codigo-ypp">
+          <Hash size={11} />
+          {conductor.codigoYPP}
+        </div>
+      )}
 
       <div className="card-avatar">
         {conductor.fotos?.perfil ? (
@@ -71,13 +64,13 @@ const ConductorCardAprobado = ({ conductor, onVerDetalle }) => {
 
       <div className="card-content">
         <h3 className="conductor-nombre">{conductor.nombreCompleto}</h3>
-        
+
         <div className="conductor-detalles">
           <div className="detalle-item">
             <Calendar size={14} />
             <span>Aprobado: {formatFecha(conductor.fechaActualizacion || conductor.fechaRegistro)}</span>
           </div>
-          
+
           {conductor.telefono && (
             <div className="detalle-item">
               <Phone size={14} />
@@ -85,15 +78,13 @@ const ConductorCardAprobado = ({ conductor, onVerDetalle }) => {
             </div>
           )}
 
-          {/* ✅ NUEVO: Marca y Modelo del vehículo */}
           <div className="detalle-item vehiculo">
             <Car size={14} />
             <span>
               {conductor.vehiculo?.marca || '?'} {conductor.vehiculo?.modelo || '?'} - {conductor.vehiculo?.placa || 'Sin placa'}
             </span>
           </div>
-          
-          {/* ✅ NUEVO: Año y Color */}
+
           <div className="detalle-item vehiculo-detalle">
             <span>Año: {conductor.vehiculo?.año || '?'} | Color: {conductor.vehiculo?.color || '?'}</span>
           </div>
@@ -101,23 +92,23 @@ const ConductorCardAprobado = ({ conductor, onVerDetalle }) => {
       </div>
 
       <div className="card-actions">
-        <button 
+        <button
           className="action-btn whatsapp"
           onClick={handleWhatsApp}
           title="Contactar por WhatsApp"
         >
           <i className="fab fa-whatsapp"></i>
         </button>
-        
-        <button 
+
+        <button
           className="action-btn revocar"
           onClick={handleRevocar}
           title="Revocar (mover a pendiente)"
         >
           <RotateCcw size={18} />
         </button>
-        
-        <button 
+
+        <button
           className="action-btn view"
           onClick={() => onVerDetalle(conductor)}
           title="Ver detalles"

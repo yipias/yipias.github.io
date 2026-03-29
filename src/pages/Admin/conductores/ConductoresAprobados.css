@@ -45,3 +45,41 @@
   background: #e0a800;
   color: #000;
 }
+
+/* ===== AGREGAR AL FINAL DE ConductoresAprobados.css ===== */
+ 
+.aprobados-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.2rem;
+  padding: 0.6rem 0;
+}
+ 
+.aprobados-count {
+  color: #888;
+  font-size: 0.9rem;
+}
+ 
+.btn-exportar-excel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.2rem;
+  background: #1a3a1a;
+  color: #28a745;
+  border: 1px solid #28a745;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+ 
+.btn-exportar-excel:hover {
+  background: #28a745;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+}
+ 

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   User, Phone, Car, Calendar, MapPin, 
   Upload, CheckCircle, X, Camera, Home, Wifi, Briefcase,
-  CalendarDays, Hash, Palette, Save
+  CalendarDays, Hash, Palette, Save, CreditCard
 } from 'lucide-react';
 import { useIndexedDB } from '../../hooks/useIndexedDB';
 import './FormularioConductor.css';
@@ -26,6 +26,7 @@ const FormularioConductor = ({ onSubmit, loading }) => {
     nombreCompleto: '',
     ciudadOperacion: '',
     telefono: '',
+    dni: '',                    // ✅ NUEVO
     fechaNacimiento: '',
     direccion: '',
     vehiculo: {
@@ -97,7 +98,6 @@ const FormularioConductor = ({ onSubmit, loading }) => {
         // 2. Cargar todas las fotos y sus previews
         const { fotos, fotosPreviews } = await cargarTodasLasFotos();
         
-        // Actualizar fotos en formData (ahora son Blobs)
         setFormData(prev => ({
           ...prev,
           fotos: {
@@ -106,7 +106,6 @@ const FormularioConductor = ({ onSubmit, loading }) => {
           }
         }));
 
-        // Actualizar previews
         setFotoPreviews(prev => ({
           ...prev,
           ...fotosPreviews
@@ -135,11 +134,11 @@ const FormularioConductor = ({ onSubmit, loading }) => {
   // ===== GUARDAR DATOS EN INDEXEDDB (con debounce) =====
   const guardarDatos = useCallback(async () => {
     try {
-      // Guardar solo texto en IndexedDB
       const datosTexto = {
         nombreCompleto: formData.nombreCompleto,
         ciudadOperacion: formData.ciudadOperacion,
         telefono: formData.telefono,
+        dni: formData.dni,                          // ✅ NUEVO
         fechaNacimiento: formData.fechaNacimiento,
         direccion: formData.direccion,
         vehiculo: formData.vehiculo,
@@ -201,10 +200,8 @@ const FormularioConductor = ({ onSubmit, loading }) => {
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
           
-          // Convertir a blob directamente (más confiable)
           canvas.toBlob((blob) => {
             if (blob) {
-              // Crear File a partir del blob
               const compressedFile = new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), {
                 type: 'image/jpeg'
               });
@@ -240,7 +237,6 @@ const FormularioConductor = ({ onSubmit, loading }) => {
     if (input) input.disabled = true;
 
     try {
-      // Mostrar preview inmediato
       const reader = new FileReader();
       reader.onloadend = () => {
         setFotoPreviews(prev => ({
@@ -250,13 +246,10 @@ const FormularioConductor = ({ onSubmit, loading }) => {
       };
       reader.readAsDataURL(file);
 
-      // Comprimir imagen
       const compressedFile = await comprimirImagen(file);
       
-      // Guardar EN INDEXEDDB
       await guardarFoto(campo, compressedFile);
       
-      // Actualizar formData con el File comprimido
       setFormData(prev => ({
         ...prev,
         fotos: {
@@ -280,10 +273,8 @@ const FormularioConductor = ({ onSubmit, loading }) => {
 
   // ===== ELIMINAR FOTO =====
   const removeFoto = async (campo) => {
-    // Eliminar de IndexedDB
     await eliminarFoto(campo);
     
-    // Eliminar de estados
     setFormData(prev => ({
       ...prev,
       fotos: {
@@ -296,7 +287,6 @@ const FormularioConductor = ({ onSubmit, loading }) => {
       [campo]: ''
     }));
     
-    // Limpiar input
     if (fileInputRefs.current[campo]) {
       fileInputRefs.current[campo].value = '';
     }
@@ -326,6 +316,12 @@ const FormularioConductor = ({ onSubmit, loading }) => {
       alert('Para continuar debes aceptar tu declaración jurada');
       return;
     }
+
+    // ✅ VALIDACIÓN DNI
+    if (formData.dni.length < 8) {
+      alert('El DNI debe tener al menos 8 dígitos');
+      return;
+    }
     
     const fotosRequeridas = [
       'perfil', 'vehiculoFrontal', 'vehiculoLateral', 'vehiculoInterior',
@@ -340,27 +336,22 @@ const FormularioConductor = ({ onSubmit, loading }) => {
       return;
     }
 
-    // ✅ RECONSTRUIR FOTOS COMO FILES ANTES DE ENVIAR
     const fotosParaEnviar = {};
     
     for (const campo of fotosRequeridas) {
       const foto = formData.fotos[campo];
       
       if (foto instanceof File) {
-        // Ya es un File, lo usamos directo
         fotosParaEnviar[campo] = foto;
       } else if (foto instanceof Blob) {
-        // Es un Blob de IndexedDB, lo convertimos a File con nombre
         const fileName = `${campo}_${Date.now()}.jpg`;
         const file = new File([foto], fileName, { type: 'image/jpeg' });
         fotosParaEnviar[campo] = file;
       }
     }
     
-    // Limpiar IndexedDB después de enviar
     await limpiarFormulario();
     
-    // Enviar con los Files reconstruidos
     onSubmit(formData, fotosParaEnviar);
   };
 
@@ -500,6 +491,20 @@ const FormularioConductor = ({ onSubmit, loading }) => {
           />
         </div>
 
+        {/* ✅ NUEVO: DNI */}
+        <div className="input-group">
+          <CreditCard size={18} className="input-icon" />
+          <input
+            type="text"
+            name="dni"
+            value={formData.dni}
+            onChange={handleChange}
+            placeholder="DNI"
+            maxLength="8"
+            required
+          />
+        </div>
+
         <div className="input-group">
           <CalendarDays size={18} className="input-icon" />
           <input
@@ -528,7 +533,6 @@ const FormularioConductor = ({ onSubmit, loading }) => {
       {/* ===== DATOS DEL VEHÍCULO ===== */}
       <h3>Datos del vehículo</h3>
       <div className="form-grid">
-        {/* MARCA */}
         <div className="input-group">
           <Car size={18} className="input-icon" />
           <input
@@ -541,7 +545,6 @@ const FormularioConductor = ({ onSubmit, loading }) => {
           />
         </div>
 
-        {/* MODELO */}
         <div className="input-group">
           <Car size={18} className="input-icon" />
           <input
@@ -554,7 +557,6 @@ const FormularioConductor = ({ onSubmit, loading }) => {
           />
         </div>
 
-        {/* AÑO */}
         <div className="input-group">
           <Hash size={18} className="input-icon" />
           <input
@@ -567,7 +569,6 @@ const FormularioConductor = ({ onSubmit, loading }) => {
           />
         </div>
 
-        {/* COLOR */}
         <div className="input-group">
           <Palette size={18} className="input-icon" />
           <input
@@ -580,7 +581,6 @@ const FormularioConductor = ({ onSubmit, loading }) => {
           />
         </div>
 
-        {/* PLACA */}
         <div className="input-group">
           <Hash size={18} className="input-icon" />
           <input
@@ -593,7 +593,6 @@ const FormularioConductor = ({ onSubmit, loading }) => {
           />
         </div>
 
-        {/* AIRE ACONDICIONADO */}
         <div className="input-group">
           <Wifi size={18} className="input-icon" />
           <select

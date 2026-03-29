@@ -3,7 +3,7 @@ import React, { useState, useCallback, memo, useRef, useEffect } from 'react';
 import { 
   X, Phone, CheckCircle, XCircle, User, Car, 
   Calendar, MapPin, Home, Wifi, Briefcase,
-  CalendarDays, Hash, Palette, Camera, RotateCcw, Edit2, Save
+  CalendarDays, Hash, Palette, Camera, RotateCcw, Edit2, Save, CreditCard
 } from 'lucide-react';
 import { useAdminConductores } from '../../../hooks/useAdminConductores';
 import './ConductorDetalleModal.css';
@@ -193,7 +193,6 @@ const ConductorDetalleModal = ({ conductor, onClose, tipo = 'pendiente' }) => {
 
   const handleGuardarCambios = async () => {
     const result = await actualizarConductor(conductor.id, editedData);
-
     if (result.success) {
       Object.assign(conductor, editedData);
       setEditMode(false);
@@ -230,30 +229,21 @@ const ConductorDetalleModal = ({ conductor, onClose, tipo = 'pendiente' }) => {
       if (fecha?.seconds) {
         const date = new Date(fecha.seconds * 1000);
         return date.toLocaleDateString('es-PE', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
+          day: '2-digit', month: '2-digit', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
         });
       }
       if (fecha instanceof Date) {
         return fecha.toLocaleDateString('es-PE', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
+          day: '2-digit', month: '2-digit', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
         });
       }
       const date = new Date(fecha);
       if (!isNaN(date.getTime())) {
         return date.toLocaleDateString('es-PE', {
-          day: '2-digit',
-          month: '2-digit',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
+          day: '2-digit', month: '2-digit', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
         });
       }
       return 'Fecha no disponible';
@@ -317,10 +307,7 @@ const ConductorDetalleModal = ({ conductor, onClose, tipo = 'pendiente' }) => {
                   onFotoActualizada={(campo, url) => {
                     setEditedData(prev => ({
                       ...prev,
-                      fotos: {
-                        ...(prev.fotos || {}),
-                        [campo]: url
-                      }
+                      fotos: { ...(prev.fotos || {}), [campo]: url }
                     }));
                   }}
                 />
@@ -358,6 +345,16 @@ const ConductorDetalleModal = ({ conductor, onClose, tipo = 'pendiente' }) => {
                 label="Teléfono" 
                 field="telefono"
                 value={getNestedValue(editMode ? editedData : conductor, 'telefono')}
+                editMode={editMode}
+                tipo={tipo}
+                onUpdate={handleFieldUpdate}
+              />
+              {/* ✅ NUEVO: DNI */}
+              <CampoInfo 
+                icon={CreditCard} 
+                label="DNI" 
+                field="dni"
+                value={getNestedValue(editMode ? editedData : conductor, 'dni')}
                 editMode={editMode}
                 tipo={tipo}
                 onUpdate={handleFieldUpdate}
@@ -454,10 +451,7 @@ const ConductorDetalleModal = ({ conductor, onClose, tipo = 'pendiente' }) => {
                       onFotoActualizada={(campo, url) => {
                         setEditedData(prev => ({
                           ...prev,
-                          fotos: {
-                            ...(prev.fotos || {}),
-                            [campo]: url
-                          }
+                          fotos: { ...(prev.fotos || {}), [campo]: url }
                         }));
                       }}
                     />
@@ -486,10 +480,7 @@ const ConductorDetalleModal = ({ conductor, onClose, tipo = 'pendiente' }) => {
                       onFotoActualizada={(campo, url) => {
                         setEditedData(prev => ({
                           ...prev,
-                          fotos: {
-                            ...(prev.fotos || {}),
-                            [campo]: url
-                          }
+                          fotos: { ...(prev.fotos || {}), [campo]: url }
                         }));
                       }}
                     />

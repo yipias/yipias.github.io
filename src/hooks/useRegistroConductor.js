@@ -20,30 +20,27 @@ export const useRegistroConductor = () => {
       // 2. Subir cada foto a Storage y obtener su URL
       for (const [campo, file] of Object.entries(fotos)) {
         if (file) {
-          // Crear nombre único para el archivo
           const fileName = `${Date.now()}_${campo}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
           const storageRef = ref(storage, `conductores/${fileName}`);
           
-          // Subir archivo
           await uploadBytes(storageRef, file);
           
-          // Obtener URL
           const url = await getDownloadURL(storageRef);
           
-          // Guardar URL en el objeto
           fotosUrls[campo] = url;
         }
       }
 
       // 3. Separar datos del vehículo del resto
-      const { vehiculo, ...restoDatos } = datos;
+      const { vehiculo, fotos: _fotos, ...restoDatos } = datos;
 
-      // 4. Preparar datos para Firestore (CON MARCA Y MODELO)
+      // 4. Preparar datos para Firestore
       const conductorData = {
-        ...restoDatos,
+        ...restoDatos,          // incluye dni, nombreCompleto, telefono, etc.
+        dni: datos.dni || '',   // ✅ explícito para que quede claro en Firestore
         vehiculo: {
-          marca: vehiculo.marca || '',           // ← AGREGADO
-          modelo: vehiculo.modelo || '',         // ← AGREGADO
+          marca: vehiculo.marca || '',
+          modelo: vehiculo.modelo || '',
           año: vehiculo.año || '',
           color: vehiculo.color || '',
           placa: vehiculo.placa || '',

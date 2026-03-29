@@ -180,3 +180,24 @@
 .detalle-item.vehiculo span {
   color: #dc3545;
 }
+
+/* ===== AGREGAR AL FINAL DE ConductorCardAprobado.css ===== */
+ 
+.card-codigo-ypp {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: rgba(40, 167, 69, 0.15);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.4);
+  padding: 0.15rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  z-index: 2;
+}

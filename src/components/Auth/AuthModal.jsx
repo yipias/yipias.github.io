@@ -211,13 +211,13 @@ const AuthModal = ({ onClose, onSuccess }) => {
         formData.password
       );
       const user = userCredential.user;
+      const uid = user.uid; // ✅ Guardamos el uid ANTES de cerrar sesión
 
       await new Promise(resolve => setTimeout(resolve, 1000));
       await user.getIdToken(true);
       await sendEmailVerification(user);
+      await auth.signOut(); // ✅ Cerramos sesión inmediatamente después de enviar verificación
 
-      const currentUser = auth.currentUser;
-      
       const userData = {
         nombres: nombres,
         apellidos: apellidos,
@@ -227,12 +227,12 @@ const AuthModal = ({ onClose, onSuccess }) => {
         dni: formData.dni,
         rol: 'cliente',
         fechaRegistro: new Date().toISOString(),
-        uid: currentUser.uid,
+        uid: uid, // ✅ Usamos la variable local, no auth.currentUser
         estado: 'activo',
         emailVerified: false
       };
 
-      await setDoc(doc(db, 'usuarios', currentUser.uid), userData);
+      await setDoc(doc(db, 'usuarios', uid), userData); // ✅ Usamos la variable local
 
       setSuccess('Registro exitoso. Hemos enviado un correo de verificación a tu email. Por favor verifica antes de iniciar sesión.');
 
