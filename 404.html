@@ -6,12 +6,15 @@
     <script>
         var path = window.location.pathname;
         
+        // Redirige a términos si la URL contiene palabras clave
         if (path.includes('terminos') || path.includes('terminoscondiciones')) {
-            window.location.href = 'https://yipias.com/#/términos';
+            window.location.href = 'https://yipias.com/terminoscondiciones.html';
         } 
+        // Redirige a políticas si contiene palabras clave
         else if (path.includes('politicas') || path.includes('politicaseguridad') || path.includes('privacidad')) {
-            window.location.href = 'https://yipias.com/#/privacidad';
+            window.location.href = 'https://yipias.com/politicasseguridad.html';
         }
+        // Cualquier otra URL rota va a la página principal
         else {
             window.location.href = 'https://yipias.com';
         }
