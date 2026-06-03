@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Redirigiendo...</title>
+    <title>Redirigiendo...</title>  
     <script>
         window.location.href = "https://yipias.com/terminoscondiciones.html";
     </script>
