@@ -3,24 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <title>Redirigiendo...</title>
-    <script>
-        var path = window.location.pathname;
-        
-        // Redirige a términos si la URL contiene palabras clave
-        if (path.includes('terminos') || path.includes('terminoscondiciones')) {
-            window.location.href = 'https://yipias.com/terminoscondiciones.html';
-        } 
-        // Redirige a políticas si contiene palabras clave
-        else if (path.includes('politicas') || path.includes('politicaseguridad') || path.includes('privacidad')) {
-            window.location.href = 'https://yipias.com/politicasseguridad.html';
-        }
-        // Cualquier otra URL rota va a la página principal
-        else {
-            window.location.href = 'https://yipias.com';
-        }
-    </script>
+    <meta http-equiv="refresh" content="0; url=https://yipias.com/terminoscondiciones.html">
 </head>
 <body>
+    <script>
+        var path = window.location.pathname;
+        if (path.includes('politicas') || path.includes('privacidad')) {
+            window.location.href = 'https://yipias.com/politicasseguridad.html';
+        } else {
+            window.location.href = 'https://yipias.com/terminoscondiciones.html';
+        }
+    </script>
     <p>Redirigiendo... Si no funciona, <a href="https://yipias.com">haz clic aquí</a>.</p>
 </body>
 </html>
