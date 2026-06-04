@@ -1,0 +1,17 @@
+/*
+  Content-Type: application/javascript
+
+*.js
+  Content-Type: application/javascript
+
+*.mjs
+  Content-Type: application/javascript
+
+*.jsx
+  Content-Type: application/javascript
+
+*.ts
+  Content-Type: application/javascript
+
+*.tsx
+  Content-Type: application/javascript
