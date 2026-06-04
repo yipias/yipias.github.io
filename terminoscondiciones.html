@@ -12,226 +12,232 @@
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
+            background-color: #f0f4f8;
             padding: 40px 20px;
             line-height: 1.6;
-            color: #333;
+            color: #1a2a3a;
         }
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.1);
+            padding: 50px 40px;
         }
         h1 {
-            color: #1a5f7a;
-            border-bottom: 3px solid #1a5f7a;
+            color: #0b4f6c;
+            border-bottom: 3px solid #0b4f6c;
             padding-bottom: 15px;
-            margin-bottom: 10px;
-            font-size: 28px;
+            margin-bottom: 20px;
+            font-size: 32px;
+            text-align: center;
         }
         .fecha {
-            color: #666;
+            color: #2c6979;
             font-size: 14px;
-            margin-bottom: 30px;
-            font-style: italic;
+            margin-bottom: 35px;
+            text-align: center;
+            font-weight: 500;
+            background: #e8f0f5;
+            padding: 8px;
+            border-radius: 30px;
+            width: fit-content;
+            margin-left: auto;
+            margin-right: auto;
         }
         h2 {
-            color: #1a5f7a;
-            margin-top: 25px;
+            color: #0b4f6c;
+            margin-top: 30px;
             margin-bottom: 15px;
-            font-size: 22px;
-            border-left: 4px solid #1a5f7a;
-            padding-left: 15px;
+            font-size: 24px;
+            border-left: 5px solid #0b4f6c;
+            padding-left: 18px;
         }
         h3 {
-            color: #2c3e50;
+            color: #1e5a74;
             margin-top: 20px;
             margin-bottom: 10px;
-            font-size: 18px;
+            font-size: 20px;
         }
         p {
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             text-align: justify;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
+            margin: 25px 0;
             background: #fff;
-            border-radius: 8px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
         th {
-            background-color: #1a5f7a;
+            background-color: #0b4f6c;
             color: white;
-            padding: 12px;
+            padding: 12px 15px;
             text-align: left;
             font-weight: 600;
         }
         td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e7ed;
             vertical-align: top;
+        }
+        tr:last-child td {
+            border-bottom: none;
         }
         tr:hover {
             background-color: #f1f9ff;
         }
-        .modalidad {
-            background-color: #e8f4f8;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
-        }
-        .modalidad p {
-            margin-bottom: 8px;
-        }
-        .nivel {
-            background-color: #fef9e6;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 15px 0;
+        .modalidad, .nivel, .seguridad, .proveedor {
+            background-color: #f4f9fc;
+            padding: 18px 22px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 4px solid #0b4f6c;
         }
         ul, ol {
-            margin: 10px 0 15px 30px;
+            margin: 12px 0 20px 35px;
         }
         li {
             margin-bottom: 8px;
         }
         .contacto {
-            background-color: #f0f7fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 30px;
+            background-color: #e8f0f5;
+            padding: 25px;
+            border-radius: 14px;
+            margin-top: 35px;
             text-align: center;
         }
         .contacto a {
-            color: #1a5f7a;
+            color: #0b4f6c;
             text-decoration: none;
             font-weight: bold;
-        }
-        .contacto a:hover {
-            text-decoration: underline;
+            border-bottom: 1px solid #0b4f6c;
         }
         hr {
-            margin: 30px 0;
+            margin: 35px 0;
             border: none;
-            border-top: 1px solid #ddd;
+            border-top: 2px solid #dce5ec;
         }
         @media (max-width: 768px) {
             .container {
-                padding: 20px;
+                padding: 25px 20px;
             }
             h1 {
-                font-size: 24px;
+                font-size: 26px;
             }
             h2 {
-                font-size: 20px;
+                font-size: 22px;
             }
-            table {
-                font-size: 14px;
+            table, thead, tbody, th, td, tr {
+                display: block;
             }
             th, td {
-                padding: 8px;
+                padding: 10px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>1. TÉRMINOS Y CONDICIONES – YIPIAS</h1>
+        <h1>TÉRMINOS Y CONDICIONES DE USO – YIPIAS</h1>
         <div class="fecha">📅 Última actualización: 04/06/2026</div>
 
-        <h2>1. INTRODUCCIÓN</h2>
-        <p>Los presentes Términos y Condiciones regulan el uso de la plataforma tecnológica Yipias (en adelante, "Yipias"), operada por Plataformas y Soluciones Digitales S.A.C., RUC: 20610695257, con domicilio en Piura, Perú.</p>
-        <p>Yipias es una plataforma tecnológica de conexión entre:</p>
-        <ul>
-            <li><strong>Usuarios Pasajeros:</strong> Personas que requieren un servicio de movilidad.</li>
-            <li><strong>Usuarios Conductores:</strong> Personas que ofrecen servicios de movilidad en sus propios vehículos.</li>
-        </ul>
-        <p>Yipias no es una empresa de taxis, no opera flota propia ni impone tarifas. Los precios son libremente ofertados por los conductores, pudiendo Yipias sugerir montos referenciales.</p>
+        <h2>1. INTRODUCCIÓN Y NATURALEZA JURÍDICA</h2>
+        <p>Los presentes Términos y Condiciones regulan el acceso y uso de la plataforma tecnológica de movilidad Yipias (en adelante, "Yipias" o "la Plataforma"), constituida por las aplicaciones móviles independientes para Pasajeros y Conductores, canales web y herramientas de mensajería integradas. La Plataforma es operada y de propiedad exclusiva de Plataformas y Soluciones Digitales S.A.C., corporación identificada con RUC N.º 20610695257, cuyas operaciones son en todo el territorio de la República del Perú.</p>
+        
+        <h3>1.1 Declaración de Neutralidad Tecnológica</h3>
+        <p>Yipias es, única y exclusivamente, una empresa proveedora de servicios tecnológicos de intermediación. Yipias no es una empresa de transportes, no es una empresa de taxis, no cuenta con una flota vehicular propia ni actúa como empleador o representante de los conductores afiliados. La función del software se limita a actuar como un canal de enlace digital para que dos partes independientes (en adelante, el "Pasajero" y el "Conductor") se conecten en tiempo real y celebren un contrato privado y directo de arrendamiento de vehículo con conductor, donde la diferenciación fundamental radica en la calidad, seguridad y profesionalismo del servicio brindado.</p>
 
-        <h2>2. MODALIDADES DE SERVICIO</h2>
-        <p>Yipias opera bajo dos modalidades:</p>
+        <h2>2. MODALIDADES DE SERVICIO Y CATEGORÍAS</h2>
+        <h3>2.1 Modalidades de Enlace Técnico</h3>
+        <p>La plataforma tecnológica opera bajo dos esquemas logísticos diferenciados:</p>
         <div class="modalidad">
-            <p><strong>A. Conexión en tiempo real</strong> → A través de la app móvil (Yipias Cliente / Yipias Conductor), los pasajeros solicitan servicios y los conductores cercanos reciben la solicitud para ofertar o aceptar.</p>
-            <p><strong>B. Servicios ejecutivos / reservas</strong> → A través de canales complementarios (WhatsApp, web, teléfono), se gestionan reservas anticipadas para viajes corporativos o ejecutivos.</p>
+            <p><strong>A. Conexión y Solicitud en Tiempo Real:</strong> Intermediación instantánea mediante el uso de las aplicaciones móviles nativas basadas en la geolocalización satelital de los dispositivos conectados.</p>
+            <p><strong>B. Servicios Ejecutivos y Reservas Anticipadas:</strong> Gestión complementaria mediante canales corporativos autorizados (WhatsApp Ejecutivo, central telefónica y entorno web) enfocada en la atención programada de cuentas corporativas o viajes de alta gama.</p>
         </div>
 
-        <h2>3. REQUISITOS DE REGISTRO</h2>
+        <h3>2.2 Segmentos y Categorías de Vehículos</h3>
+        <p>El Pasajero puede segmentar su solicitud de enlace de acuerdo con las siguientes categorías operativas disponibles en la Plataforma:</p>
         <table>
             <thead>
-                <tr><th>Rol</th><th>Edad mínima</th><th>Documentación requerida</th></tr>
+                <tr><th>Categoría</th><th>Especificaciones Técnicas y Enfoque Comercial</th></tr>
             </thead>
             <tbody>
-                <tr><td>Pasajero</td><td>18 años</td><td>Nombre, teléfono, correo electrónico</td></tr>
-                <tr><td>Pasajero Verificado (voluntario)</td><td>18 años</td><td>Nombre, teléfono, correo electrónico, DNI</td></tr>
-                <tr><td>Conductor</td><td>18 años</td><td>DNI, licencia de conducir, SOAT vigente, foto del vehículo, foto del conductor, croquis de domicilio, datos del vehículo (marca, modelo, año, placa, color)</td></tr>
+                <tr><td><strong>Standard</strong></td><td>Vehículos sedán o hatchback compactos, enfocados en un traslado urbano diario, eficiente y económico.</td></tr>
+                <tr><td><strong>6 Plazas</strong></td><td>Vehículos de tres filas de asientos (SUVs o minivans), orientados exclusivamente a traslados grupales o de carga ligera familiar.</td></tr>
+                <tr><td><strong>Premium</strong></td><td>Vehículos ejecutivos de gama alta seleccionados bajo estrictos estándares estéticos y de confort, operados por conductores con máximas calificaciones. Representa la experiencia VIP insignia de Yipias.</td></tr>
+                <tr><td><strong>Mototaxi</strong></td><td>Unidades ligeras autorizadas para un servicio de conectividad local directo, rápido y de corto alcance geográfico dentro de los radios urbanos permitidos.</td></tr>
             </tbody>
         </table>
 
-        <h2>4. NIVELES DE CUENTA PARA PASAJEROS</h2>
-        <p>Yipias ofrece dos niveles de cuenta para los pasajeros, con el objetivo de mejorar la seguridad y confianza en la plataforma:</p>
-        <table>
-            <thead><tr><th>Nivel</th><th>Requisitos</th><th>Beneficios</th></tr></thead>
-            <tbody>
-                <tr><td>Cuenta Estándar</td><td>Correo electrónico verificado</td><td>• Puede solicitar viajes sin restricciones</td></tr>
-                <tr><td>Cuenta Verificada</td><td>Correo electrónico verificado + DNI válido</td><td>• Insignia "Verificada" visible para conductores<br>• Prioridad en asignación de viajes en caso de empate<br>• Acceso a promociones y beneficios exclusivos<br>• Mayor confianza por parte de los conductores</td></tr>
-            </tbody>
-        </table>
-        <div class="nivel">
-            <p><strong>Importante:</strong></p>
-            <ul>
-                <li>La verificación con DNI es voluntaria y no condiciona el uso básico de la plataforma.</li>
-                <li>El DNI se almacena de forma cifrada y se utiliza exclusivamente para emisión de comprobantes y verificación de identidad.</li>
-                <li>Los pasajeros verificados no tienen prioridad absoluta; solo en caso de empate en distancia y disponibilidad.</li>
-                <li>Yipias no discrimina a los pasajeros con cuenta Estándar. Todos los usuarios pueden solicitar y recibir servicios sin restricciones.</li>
-            </ul>
-        </div>
+        <h2>3. EL MECANISMO DE SUBASTA Y FIJACIÓN DE TARIFAS</h2>
+        <p>Yipias no impone, no regula ni congela tarifas obligatorias para los servicios de movilidad. El precio de cada trayecto se rige bajo un modelo transparente de Subasta Abierta y Oferta Dinámica en Tiempo Real.</p>
 
-        <h2>5. CANCELACIONES Y PENALIDADES</h2>
-        <h3>5.1 Por parte del Pasajero</h3>
-        <p>La reincidencia en cancelaciones podrá generar penalidades que afecten su calificación como usuario. Yipias se reserva el derecho de suspender cuentas con alta tasa de cancelación injustificada.</p>
-        <h3>5.2 Por parte del Conductor</h3>
-        <tr>
-            <thead><tr><th>Nivel de reincidencia</th><th>Acción</th></tr></thead>
-            <tbody>
-                <tr><td>Baja</td><td>Llamada de atención</td></tr>
-                <tr><td>Media</td><td>Advertencia formal</td></tr>
-                <tr><td>Alta</td><td>Suspensión temporal</td></tr>
-                <tr><td>Muy alta</td><td>Bloqueo definitivo de la cuenta</td></tr>
-            </tbody>
-        </table>
-
-        <h2>6. RESPONSABILIDAD Y SEGUROS</h2>
-        <p>Los vehículos de los conductores cuentan con SOAT obligatorio. Yipias no ofrece seguros adicionales a los conductores ni a los pasajeros. Yipias actúa como facilitador tecnológico y no asume responsabilidad por accidentes, daños o pérdidas ocurridos durante el servicio, salvo lo dispuesto por la ley peruana.</p>
-
-        <h2>7. PROHIBICIONES</h2>
+        <h3>3.1 Mecanismos de Ajuste de Tarifa (Control del Pasajero)</h3>
+        <p>Al ingresar un punto de origen y un destino, la Plataforma utiliza algoritmos predictivos basados en distancia geográfica y tiempo estimado de ruta para sugerir un monto referencial base. El Pasajero posee la facultad exclusiva de modificar de forma voluntaria dicha propuesta inicial mediante dos herramientas complementarias integradas en la interfaz de usuario:</p>
         <ul>
-            <li><strong>Desintermediación:</strong> Queda prohibido a los conductores aceptar viajes directos de pasajeros contactados a través de Yipias por fuera de la plataforma.</li>
-            <li><strong>Uso indebido:</strong> No se permite el uso de la app para actividades ilícitas, acoso, discriminación o cualquier conducta que comprometa la seguridad.</li>
+            <li><strong>Mecanismo A: El Deslizador Táctil Automatizado (Slider).</strong> Permite al usuario seleccionar de forma rápida y ágil tres niveles de aceleración transaccional: <em>Ahorra (0.85x)</em>, <em>Recomendado (1.0x)</em> y <em>Asignación Prioritaria (1.25x)</em>.</li>
+            <li><strong>Mecanismo B: Ingreso Libre por Teclado Numérico (Tarifa Personalizada).</strong> El Pasajero puede digitar manualmente el monto exacto en Soles, rompiendo los topes automáticos y ofertando libremente.</li>
         </ul>
 
-        <h2>8. PROPIEDAD INTELECTUAL</h2>
-        <p>La app Yipias, su código fuente, diseño, logotipos y contenidos son propiedad exclusiva de Plataformas y Soluciones Digitales S.A.C. y están protegidos por las leyes de propiedad intelectual del Perú.</p>
+        <h3>3.2 La Contraoferta del Conductor y Cierre del Contrato</h3>
+        <p>Los conductores pueden aceptar el monto propuesto o enviar contraofertas. El contrato se perfecciona cuando el Pasajero selecciona manualmente la propuesta del conductor, congelando la tarifa final. No se admiten cobros adicionales no pactados a través de la app.</p>
 
-        <h2>9. MODIFICACIONES</h2>
-        <p>Yipias podrá modificar estos Términos y Condiciones en cualquier momento. Las modificaciones entrarán en vigor 5 días hábiles después de su publicación en la app o en el sitio web www.yipias.com.</p>
+        <h2>4. REQUISITOS DE REGISTRO Y ESCUDO DE SEGURIDAD DIGITAL</h2>
+        <h3>4.1 Perfil del Pasajero</h3>
+        <p>Edad mínima 18 años, teléfono celular activo, correo electrónico válido y nombres verdaderos.</p>
+        <h3>4.2 Perfil del Conductor</h3>
+        <p>Filtro riguroso que incluye DNI, licencia de conducir profesional, SOAT vigente, fotografías del vehículo, selfie de validación biométrica y croquis domiciliario.</p>
+        <h3>4.3 Cláusula de Protección de Hardware y Anti-Fraude</h3>
+        <p>Se captura el identificador único de hardware (SSAID/Android ID). Queda prohibido el uso de emuladores, Fake GPS o cuentas múltiples en un mismo dispositivo. La deteción causa cancelación inmediata y bloqueo permanente del hardware.</p>
 
-        <h2>10. LEY APLICABLE Y JURISDICCIÓN</h2>
-        <p>Estos Términos se rigen por las leyes de la República del Perú. Cualquier controversia será sometida a los jueces y tribunales competentes de la ciudad de Piura.</p>
+        <h2>5. NIVELES DE CUENTA PARA PASAJEROS</h2>
+        <p><strong>Cuenta Estándar:</strong> Verificación de teléfono y correo. Sin restricciones.<br>
+        <strong>Cuenta Verificada (Voluntaria):</strong> Asociación del DNI. Insignia dorada, prioridad en cola de solicitudes y acceso a promociones.</p>
 
-        <h2>11. CONTACTO</h2>
+        <h2>6. RÉGIMEN ECONÓMICO, COMISIONES E IMPUESTOS</h2>
+        <p>La tasa de intermediación digital es asumida por el Conductor: 8% de comisión sobre la tarifa + 18% de IGV. Yipias emite comprobantes solo al Conductor. El Conductor es responsable de emitir comprobante al Pasajero si lo solicita.</p>
+
+        <h2>7. POLÍTICA DE CANCELACIONES Y PENALIDADES</h2>
+        <p>El Pasajero puede cancelar sin penalización antes de la aceptación o durante los 2 minutos posteriores. Cancelaciones recurrentes generan suspensión temporal.<br>
+        El Conductor aplica régimen: Baja (llamada de atención), Media (advertencia), Alta (suspensión 24-72h), Muy alta (bloqueo definitivo).</p>
+
+        <h2>8. CONDICIONES DE PAGO</h2>
+        <p>Pago en Efectivo (el conductor debe tener cambio) o mediante Yape/Plin (transferencia directa entre cuentas).</p>
+
+        <h2>9. NORMAS DE CONDUCTA Y CHAT INTERNO (chat2)</h2>
+        <p>Uso exclusivo para coordinar la logística del viaje. Prohibido lenguaje ofensivo, spam o proposiciones indecorosas. Yipias puede auditar los registros.</p>
+
+        <h2>10. PROHIBICIONES ESTRICTAS Y DESINTERMEDIACIÓN</h2>
+        <ul>
+            <li><strong>Desintermediación Activa:</strong> Cancelar el viaje digital para realizarlo fuera de la app.</li>
+            <li><strong>Suplantación de Identidad:</strong> Conducir un vehículo diferente al registrado.</li>
+            <li><strong>Transporte de Sustancias Ilícitas.</strong></li>
+        </ul>
+
+        <h2>11. PROPIEDAD INTELECTUAL</h2>
+        <p>Todo el ecosistema digital (código, bases de datos, diseño, marcas) es propiedad exclusiva de Plataformas y Soluciones Digitales S.A.C. Prohibida la ingeniería inversa.</p>
+
+        <h2>12. MODIFICACIONES A LOS TÉRMINOS</h2>
+        <p>Yipias puede modificar los términos. Los cambios entrarán en vigencia 5 días hábiles después de su publicación en el sitio web o mediante ventanas emergentes en la app.</p>
+
+        <h2>13. LEY APLICABLE Y JURISDICCIÓN</h2>
+        <p>Se rigen por las leyes de la República del Perú. Cualquier controversia será sometida a los jueces del Distrito Judicial de Piura.</p>
+
+        <h2>14. INTEGRACIÓN DE INTELIGENCIA ARTIFICIAL Y MODELOS ALGORÍTMICOS</h2>
+        <p>Yipias utiliza IA para optimización de tarifas y rutas, autenticación documental (OCR y biometría facial), monitoreo de seguridad en el chat y detección de riesgos. La decisión final del contrato y precio depende de la voluntad expresa de los usuarios (principio de autonomía humana).</p>
+
+        <h2>15. CANAL OFICIAL DE ATENCIÓN Y CONTACTO</h2>
         <div class="contacto">
-            <p>📧 Correo: <a href="mailto:soporte@yipias.com">soporte@yipias.com</a></p>
-            <p>📱 WhatsApp: <a href="https://wa.me/51935893062">+51 935 893 062</a></p>
+            <p>📧 <strong>Correo:</strong> <a href="mailto:soporte@yipias.com">soporte@yipias.com</a></p>
+            <p>📱 <strong>WhatsApp:</strong> <a href="https://wa.me/51935893062">+51 935 893 062</a></p>
         </div>
-
         <hr>
-        <p style="text-align: center; font-size: 12px; color: #888;">Yipias - Plataformas y Soluciones Digitales S.A.C. © 2026</p>
+        <p style="text-align: center; font-size: 13px; color: #5a7a8a;">© 2026 YipiAs App y YipiAs Corporativo Premium Web. Todos los derechos reservados.</p>
     </div>
 </body>
 </html>
