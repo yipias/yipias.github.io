@@ -13,90 +13,56 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            padding: 16px;
         }
         .header {
-            width: 100%;
             background: #0078D7;
             color: white;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
+            padding: 16px;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,120,215,0.3);
         }
-        .header h1 { font-size: 20px; margin-bottom: 6px; }
-        .header p { font-size: 14px; opacity: 0.95; }
+        .header h1 { font-size: 18px; margin-bottom: 4px; }
+        .header p { font-size: 13px; opacity: 0.9; }
         
-        .card {
-            background: white;
-            border-radius: 16px;
-            padding: 24px;
+        #map {
+            flex: 1;
             width: 100%;
-            max-width: 400px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            margin-bottom: 16px;
+            min-height: 400px;
         }
-        .ruta { 
-            font-size: 15px; 
-            color: #333; 
-            margin: 12px 0;
-            line-height: 1.6;
+        
+        .info-panel {
+            background: white;
+            padding: 16px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
         }
+        .ruta { font-size: 14px; margin: 8px 0; color: #333; line-height: 1.5; }
         .estado { 
-            font-size: 14px; 
+            font-size: 13px; 
             color: #C9A227; 
-            font-weight: 700;
-            margin-top: 12px;
-            padding: 8px;
+            font-weight: 600;
             background: #FFF9E6;
-            border-radius: 8px;
+            padding: 8px;
+            border-radius: 6px;
             text-align: center;
+            margin-top: 8px;
         }
         
         .btn-app {
             display: block;
-            width: 100%;
             background: #0078D7;
             color: white;
             text-decoration: none;
-            padding: 16px;
-            border-radius: 10px;
+            padding: 14px;
             text-align: center;
             font-weight: 600;
-            font-size: 16px;
-            margin: 10px 0;
-            box-shadow: 0 2px 8px rgba(0,120,215,0.3);
+            margin: 8px 0;
+            border-radius: 8px;
         }
-        .btn-app:hover {
-            background: #005a9e;
-        }
-        .btn-play {
-            background: #4CAF50;
-        }
-        .btn-play:hover {
-            background: #3d8b40;
-        }
+        .btn-play { background: #4CAF50; }
         
-        .footer {
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-            margin-top: auto;
-            padding: 20px;
-        }
-        .escudo {
-            width: 28px;
-            height: 28px;
-            vertical-align: middle;
-            margin-right: 6px;
-        }
         .loader {
             text-align: center;
-            padding: 30px;
+            padding: 40px;
             color: #666;
-            font-size: 16px;
         }
         .error {
             background: #ffebee;
@@ -105,72 +71,48 @@
             border-radius: 8px;
             text-align: center;
         }
-        @media (prefers-color-scheme: dark) {
-            body { background: #1d2c33; color: #fff; }
-            .card { background: #2c3e50; }
-            .ruta { color: #B0B6C2; }
-            .estado { background: #3d3618; color: #C9A227; }
-        }
     </style>
 </head>
 <body>
 
     <div class="header">
         <h1>🚗 Siguiendo viaje Yipias</h1>
-        <p>En tiempo real • Seguro • Premium 🇵</p>
+        <p>En tiempo real • Seguro • Premium</p>
     </div>
 
-    <div class="card">
-        <div id="loading" class="loader">
-            🔍 Buscando viaje...
-        </div>
+    <div id="map"></div>
+
+    <div class="info-panel">
+        <div id="loading" class="loader">🔍 Buscando viaje...</div>
         
         <div id="contenido" style="display:none;">
-            <div class="ruta" id="txtRuta">
-                📍 Cargando origen...<br>
-                🏁 Cargando destino...
-            </div>
-            <div class="estado" id="txtEstado">
-                Estado: Conectando...
-            </div>
+            <div class="ruta" id="txtRuta">📍 Cargando...</div>
+            <div class="estado" id="txtEstado">Estado: ...</div>
+            
+            <a id="btnAbrirApp" class="btn-app" href="#">📱 Abrir en la app Yipias</a>
+            <a href="https://play.google.com/store/apps/details?id=com.yipias.cliente" class="btn-app btn-play" target="_blank">📥 Descargar app gratis</a>
         </div>
     </div>
 
-    <!-- Botón para abrir la app -->
-    <a id="btnAbrirApp" class="btn-app" href="#">
-        📱 Abrir en la app Yipias
-    </a>
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDALAGRViwvUUGAMBAkJi7Jxx2JtrWRrOA"></script>
     
-    <!-- Botón para descargar si no tiene la app -->
-    <a href="https://play.google.com/store/apps/details?id=com.yipias.cliente&hl=es_PE" 
-       class="btn-app btn-play" target="_blank">
-        📥 Descargar app gratis
-    </a>
-
-    <div class="footer">
-        <strong>Yipias</strong> • Transporte seguro en Perú<br>
-        © 2026 Todos los derechos reservados
-    </div>
-
     <script>
-        // 🔹 OBTENER ID DEL PEDIDO DESDE LA URL
+        let map;
+        let marker;
+
+        // Obtener ID del pedido
         const params = new URLSearchParams(window.location.search);
-        const pedidoId = params.get('id') || window.location.pathname.split('/').pop().replace('.html', '');
-        
-        if (!pedidoId || pedidoId === 'track') {
+        const pedidoId = params.get('id') || '';
+
+        if (!pedidoId) {
             document.getElementById('loading').innerHTML = 
-                '<div class="error">❌ Enlace no válido<br><small>Verifica el ID del viaje</small></div>';
+                '<div class="error">🚗 Esperando viaje...<br><small>Este enlace se comparte desde la app Yipias</small></div>';
         } else {
-            // 🔹 CONFIGURAR LINK PARA ABRIR LA APP
-            const deepLink = `yipias://track/${pedidoId}`;
-            document.getElementById('btnAbrirApp').href = deepLink;
-            
-            // 🔹 INTENTAR ABRIR LA APP AUTOMÁTICAMENTE (después de 1 segundo)
-            setTimeout(() => {
-                window.location.href = deepLink;
-            }, 1000);
-            
-            // 🔹 LEER DATOS BÁSICOS DESDE FIREBASE
+            cargarViaje();
+        }
+
+        function cargarViaje() {
             const dbURL = `https://yipias-web-f06e1-default-rtdb.firebaseio.com/pedidos/${pedidoId}.json`;
             
             fetch(dbURL)
@@ -182,25 +124,104 @@
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('contenido').style.display = 'block';
                     
-                    if (data && data.estado) {
-                        const origen = data.origen_texto || 'Origen no disponible';
-                        const destino = data.destino_texto || 'Destino no disponible';
-                        const estado = data.estado || 'Desconocido';
-                        const conductor = data.conductor_nombre || 'Conductor';
-                        
-                        document.getElementById('txtRuta').innerHTML = 
-                            `📍 ${origen}<br><br>🏁 ${destino}<br><br>🚖 ${conductor}`;
-                        document.getElementById('txtEstado').textContent = 
-                            `🚦 Estado: ${estado.replace('_', ' ').toUpperCase()}`;
-                    } else {
-                        throw new Error('Datos incompletos');
-                    }
+                    const origen = data.origen_texto || 'Origen';
+                    const destino = data.destino_texto || 'Destino';
+                    const estado = data.estado || 'Desconocido';
+                    const conductor = data.conductor_nombre || 'Conductor';
+                    
+                    document.getElementById('txtRuta').innerHTML = 
+                        `📍 ${origen}<br><br>🏁 ${destino}<br><br>🚖 ${conductor}`;
+                    document.getElementById('txtEstado').textContent = 
+                        `🚦 Estado: ${estado.replace('_', ' ').toUpperCase()}`;
+                    
+                    document.getElementById('btnAbrirApp').href = `yipias://track/${pedidoId}`;
+                    
+                    // 🔹 INICIALIZAR MAPA CON COORDENADAS CORRECTAS
+                    initMap(data);
+                    
+                    // Suscribirse a GPS en tiempo real
+                    subscribeToGPS();
                 })
                 .catch(err => {
                     console.log('Error:', err);
                     document.getElementById('loading').innerHTML = 
-                        '<div class="error">⚠️ No se pudo cargar la información<br><small>El viaje puede haber finalizado</small></div>';
+                        '<div class="error">⚠️ No se pudo cargar<br><small>El viaje puede haber finalizado</small></div>';
                 });
+        }
+
+        function initMap(data) {
+            // 🔹 PRIORIDAD DE COORDENADAS:
+            // 1. Ubicación del conductor (si existe)
+            // 2. Punto A (origen del pasajero)
+            // 3. Piura por defecto
+            let lat = -5.1945;  // Piura
+            let lng = -80.6328;
+            
+            if (data.latConductor && data.lngConductor) {
+                lat = data.latConductor;
+                lng = data.lngConductor;
+            } else if (data.lat_A && data.lng_A) {
+                lat = data.lat_A;
+                lng = data.lng_A;
+            }
+            
+            const pos = { lat: lat, lng: lng };
+            
+            // Crear mapa centrado en la ubicación correcta
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: pos,
+                zoom: 16,
+                disableDefaultUI: false,
+                styles: [
+                    { elementType: "geometry", stylers: [{ color: "#F5F7FA" }] },
+                    { featureType: "road", elementType: "geometry", stylers: [{ color: "#D6E4F0" }] }
+                ]
+            });
+            
+            // Agregar marcador del auto
+            marker = new google.maps.Marker({
+                position: pos,
+                map: map,
+                title: 'Tu Yipias',
+                icon: {
+                    url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                    scaledSize: new google.maps.Size(40, 40)
+                }
+            });
+        }
+
+        function subscribeToGPS() {
+            const trackURL = `https://yipias-web-f06e1-default-rtdb.firebaseio.com/pedidos/${pedidoId}/ubicacion_cache.json`;
+            
+            // Actualizar cada 5 segundos
+            setInterval(() => {
+                fetch(trackURL)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && data.lat && data.lng) {
+                            updateMarker(data.lat, data.lng);
+                        }
+                    })
+                    .catch(err => console.log('Esperando GPS...'));
+            }, 5000);
+        }
+
+        function updateMarker(lat, lng) {
+            const pos = { lat: lat, lng: lng };
+            
+            if (marker) {
+                marker.setPosition(pos);
+                map.setCenter(pos);
+            } else {
+                marker = new google.maps.Marker({
+                    position: pos,
+                    map: map,
+                    title: 'Tu Yipias',
+                    icon: {
+                        url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+                    }
+                });
+            }
         }
     </script>
 </body>
