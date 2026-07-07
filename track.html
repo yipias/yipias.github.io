@@ -95,8 +95,7 @@
             <div class="ruta" id="txtRuta">📍 Cargando...</div>
             <div class="estado" id="txtEstado">Estado: ...</div>
             
-            <a id="btnAbrirApp" class="btn-app" href="#">📱 Abrir en la app Yipias</a>
-            <a href="https://play.google.com/store/apps/details?id=com.yipias.cliente" class="btn-app btn-play" target="_blank">📥 Descargar app gratis</a>
+           <a href="https://play.google.com/store/apps/details?id=com.yipias.cliente" class="btn-app btn-play" target="_blank">📥 Descargar app Yipias gratis</a>
         </div>
     </div>
 
@@ -193,7 +192,7 @@
                 }).addTo(map);
             }
             
-            // 🔹 MARCADOR DE DESTINO
+                     // 🔹 MARCADOR DE DESTINO
             if (data.lat_B && data.lng_B) {
                 L.marker([data.lat_B, data.lng_B], {
                     icon: L.divIcon({
@@ -203,6 +202,26 @@
                 }).addTo(map).bindPopup('Destino');
             }
             
+            // 🔹 PARADA 1 (si existe)
+            if (data.has_p1 && data.lat_P1 && data.lng_P1) {
+                L.marker([data.lat_P1, data.lng_P1], {
+                    icon: L.divIcon({
+                        html: '<div style="font-size:24px;">🚏</div>',
+                        iconSize: [30, 30]
+                    })
+                }).addTo(map).bindPopup('Parada 1');
+            }
+            
+            // 🔹 PARADA 2 (si existe)
+            if (data.has_p2 && data.lat_P2 && data.lng_P2) {
+                L.marker([data.lat_P2, data.lng_P2], {
+                    icon: L.divIcon({
+                        html: '<div style="font-size:24px;">🚏</div>',
+                        iconSize: [30, 30]
+                    })
+                }).addTo(map).bindPopup('Parada 2');
+            }
+
             // 🔹 AJUSTAR ZOOM para ver toda la ruta
             if (data.lat_B && data.lng_B) {
                 const bounds = L.latLngBounds([[lat, lng], [data.lat_B, data.lng_B]]);
