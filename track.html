@@ -137,9 +137,7 @@
                         `📍 ${origen}<br><br>🏁 ${destino}<br><br>🚖 ${conductor}`;
                     document.getElementById('txtEstado').textContent = 
                         `🚦 Estado: ${estado.replace('_', ' ').toUpperCase()}`;
-                    
-                    document.getElementById('btnAbrirApp').href = `yipias://track/${pedidoId}`;
-                    
+                        
                     // Inicializar mapa con Leaflet
                     initMap(data);
                     
