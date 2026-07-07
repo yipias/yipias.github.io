@@ -154,7 +154,7 @@
                 });
         }
 
-        function initMap(data) {
+             function initMap(data) {
             // Coordenadas por defecto (Piura)
             let lat = -5.1945;
             let lng = -80.6328;
@@ -168,20 +168,46 @@
             }
             
             // Crear mapa con OpenStreetMap
-            map = L.map('map').setView([lat, lng], 16);
+            map = L.map('map').setView([lat, lng], 17);
             
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
+                attribution: '© OpenStreetMap'
             }).addTo(map);
             
-            // Icono personalizado (auto azul)
+            // 🔹 MARCADOR DEL AUTO (GRANDE Y VISIBLE)
             const carIcon = L.divIcon({
-                html: '🚗',
-                iconSize: [30, 30],
+                html: '<div style="font-size:32px;background:white;border-radius:50%;padding:4px;box-shadow:0 2px 8px rgba(0,0,0,0.3);">🚗</div>',
+                iconSize: [40, 40],
                 className: 'car-marker'
             });
             
             marker = L.marker([lat, lng], {icon: carIcon}).addTo(map);
+            
+            // 🔹 DIBUJAR RUTA A→B (si existe polyline)
+            if (data.polyline_A_B) {
+                const puntosAB = decodePolyline(data.polyline_A_B);
+                L.polyline(puntosAB, { 
+                    color: '#C9A227',
+                    weight: 6, 
+                    opacity: 0.8 
+                }).addTo(map);
+            }
+            
+            // 🔹 MARCADOR DE DESTINO
+            if (data.lat_B && data.lng_B) {
+                L.marker([data.lat_B, data.lng_B], {
+                    icon: L.divIcon({
+                        html: '<div style="font-size:28px;">🏁</div>',
+                        iconSize: [35, 35]
+                    })
+                }).addTo(map).bindPopup('Destino');
+            }
+            
+            // 🔹 AJUSTAR ZOOM para ver toda la ruta
+            if (data.lat_B && data.lng_B) {
+                const bounds = L.latLngBounds([[lat, lng], [data.lat_B, data.lng_B]]);
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
         }
 
         function subscribeToGPS() {
@@ -206,6 +232,22 @@
             } else {
                 marker = L.marker([lat, lng]).addTo(map);
             }
+        }
+        
+        // 🔹 FUNCIÓN PARA DECODIFICAR POLYLINE (Google Maps format)
+        function decodePolyline(encoded) {
+            let points = [], index = 0, len = encoded.length;
+            let lat = 0, lng = 0;
+            while (index < len) {
+                let b, shift = 0, result = 0;
+                do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+                let dlat = ((result & 1) ? ~(result >> 1) : (result >> 1)); lat += dlat;
+                shift = 0; result = 0;
+                do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+                let dlng = ((result & 1) ? ~(result >> 1) : (result >> 1)); lng += dlng;
+                points.push([lat / 1e5, lng / 1e5]);
+            }
+            return points;
         }
     </script>
 </body>
