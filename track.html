@@ -102,9 +102,10 @@
     <!-- Leaflet JS (OpenStreetMap) -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <script>
+     <script>
         let map;
         let marker;
+        let gpsListener;
 
         const params = new URLSearchParams(window.location.search);
         const pedidoId = params.get('id') || '';
@@ -137,21 +138,21 @@
                         `📍 ${origen}<br><br>🏁 ${destino}<br><br>🚖 ${conductor}`;
                     document.getElementById('txtEstado').textContent = 
                         `🚦 Estado: ${estado.replace('_', ' ').toUpperCase()}`;
-                        
+                    
                     // Inicializar mapa con Leaflet
                     initMap(data);
                     
-                    // Suscribirse a GPS
-                    subscribeToGPS();
+                    // Suscribirse a GPS EN TIEMPO REAL
+                    subscribeToGPSRealtime();
                 })
                 .catch(err => {
-                    console.log('Error:', err);
+                    console.error('Error cargando viaje:', err);
                     document.getElementById('loading').innerHTML = 
                         '<div class="error">⚠️ No se pudo cargar<br><small>El viaje puede haber finalizado</small></div>';
                 });
         }
 
-             function initMap(data) {
+        function initMap(data) {
             // Coordenadas por defecto (Piura)
             let lat = -5.1945;
             let lng = -80.6328;
@@ -171,11 +172,18 @@
                 attribution: '© OpenStreetMap'
             }).addTo(map);
             
-            // 🔹 MARCADOR DEL AUTO (GRANDE Y VISIBLE)
+            // 🔹 ICONO DE AUTO MEJORADO (SVG)
             const carIcon = L.divIcon({
-                html: '<div style="font-size:32px;background:white;border-radius:50%;padding:4px;box-shadow:0 2px 8px rgba(0,0,0,0.3);">🚗</div>',
+                html: `<svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="11" fill="white" stroke="#0078D7" stroke-width="2"/>
+                    <path d="M7 14L5 18H19L17 14" fill="#0078D7"/>
+                    <rect x="6" y="10" width="12" height="5" rx="1" fill="#0078D7"/>
+                    <circle cx="8" cy="15" r="1.5" fill="white"/>
+                    <circle cx="16" cy="15" r="1.5" fill="white"/>
+                </svg>`,
                 iconSize: [40, 40],
-                className: 'car-marker'
+                className: 'car-marker',
+                iconAnchor: [20, 20]
             });
             
             marker = L.marker([lat, lng], {icon: carIcon}).addTo(map);
@@ -190,7 +198,7 @@
                 }).addTo(map);
             }
             
-                     // 🔹 MARCADOR DE DESTINO
+            // 🔹 MARCADOR DE DESTINO
             if (data.lat_B && data.lng_B) {
                 L.marker([data.lat_B, data.lng_B], {
                     icon: L.divIcon({
@@ -225,33 +233,85 @@
                 const bounds = L.latLngBounds([[lat, lng], [data.lat_B, data.lng_B]]);
                 map.fitBounds(bounds, { padding: [50, 50] });
             }
+            
+            console.log('✅ Mapa inicializado en:', lat, lng);
         }
 
-        function subscribeToGPS() {
+        // 🔹 SUSCRIPCIÓN EN TIEMPO REAL (Firebase)
+        function subscribeToGPSRealtime() {
             const trackURL = `https://yipias-web-f06e1-default-rtdb.firebaseio.com/pedidos/${pedidoId}/ubicacion_cache.json`;
             
+            console.log('📡 Escuchando GPS en:', trackURL);
+            
+            // Método 1: Server-Sent Events (SSE) para Firebase
+            const eventSource = new EventSource(`${trackURL}?stream=true`);
+            
+            eventSource.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    console.log('📍 GPS recibido:', data);
+                    
+                    if (data && data.lat && data.lng) {
+                        updateMarker(data.lat, data.lng);
+                    }
+                } catch (err) {
+                    console.error('Error parseando GPS:', err);
+                }
+            };
+            
+            eventSource.onerror = (err) => {
+                console.error('❌ Error en SSE:', err);
+                eventSource.close();
+                
+                // Fallback: Polling cada 3 segundos
+                console.log('🔄 Cambiando a polling cada 3s...');
+                startPolling(trackURL);
+            };
+        }
+
+        // 🔹 FALLBACK: Polling si SSE falla
+        function startPolling(trackURL) {
             setInterval(() => {
-                fetch(trackURL)
-                    .then(res => res.json())
+                fetch(trackURL + '?t=' + Date.now()) // Cache busting
+                    .then(res => {
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        return res.json();
+                    })
                     .then(data => {
+                        console.log('📍 GPS (polling):', data);
+                        
                         if (data && data.lat && data.lng) {
                             updateMarker(data.lat, data.lng);
+                        } else {
+                            console.warn('⚠️ GPS sin coordenadas:', data);
                         }
                     })
-                    .catch(err => console.log('Esperando GPS...'));
-            }, 5000);
+                    .catch(err => {
+                        console.log('⏳ Esperando GPS... (' + err.message + ')');
+                    });
+            }, 3000);
         }
 
         function updateMarker(lat, lng) {
+            console.log('🚗 Actualizando marcador a:', lat, lng);
+            
+            if (!map) {
+                console.error('❌ Mapa no inicializado');
+                return;
+            }
+            
+            const pos = [lat, lng];
+            
             if (marker) {
-                marker.setLatLng([lat, lng]);
-                map.setView([lat, lng], 17);
+                marker.setLatLng(pos);
+                // NO hacer setView en cada actualización (molesto para el usuario)
+                // map.setView(pos, 17);
             } else {
-                marker = L.marker([lat, lng]).addTo(map);
+                console.error('❌ Marcador no existe');
             }
         }
         
-        // 🔹 FUNCIÓN PARA DECODIFICAR POLYLINE (Google Maps format)
+        // 🔹 FUNCIÓN PARA DECODIFICAR POLYLINE
         function decodePolyline(encoded) {
             let points = [], index = 0, len = encoded.length;
             let lat = 0, lng = 0;
@@ -266,6 +326,13 @@
             }
             return points;
         }
+        
+        // Cleanup al cerrar
+        window.addEventListener('beforeunload', () => {
+            if (gpsListener) {
+                // Limpiar listeners si es necesario
+            }
+        });
     </script>
 </body>
 </html>
