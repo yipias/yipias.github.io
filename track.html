@@ -3,340 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚗 Siguiendo viaje Yipias</title>
-    
-    <!-- Leaflet CSS (OpenStreetMap - gratis) -->
+    <title>🚗 Yipias - Seguimiento de viaje</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
-            background: #F5F7FA; 
-            color: #1A1A1A;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        .header {
-            background: #0078D7;
-            color: white;
-            padding: 16px;
-            text-align: center;
-        }
+        body { font-family: system-ui, sans-serif; background: #f5f5f5; display: flex; flex-direction: column; min-height: 100vh; }
+        .header { background: #0078D7; color: white; padding: 16px; text-align: center; }
         .header h1 { font-size: 18px; margin-bottom: 4px; }
-        .header p { font-size: 13px; opacity: 0.9; }
-        
-        #map {
-            flex: 1;
-            width: 100%;
-            min-height: 400px;
-            z-index: 1;
-        }
-        
-        .info-panel {
-            background: white;
-            padding: 16px;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-            z-index: 2;
-        }
-        .ruta { font-size: 14px; margin: 8px 0; color: #333; line-height: 1.5; }
-        .estado { 
-            font-size: 13px; 
-            color: #C9A227; 
-            font-weight: 600;
-            background: #FFF9E6;
-            padding: 8px;
-            border-radius: 6px;
-            text-align: center;
-            margin-top: 8px;
-        }
-        
-        .btn-app {
-            display: block;
-            background: #0078D7;
-            color: white;
-            text-decoration: none;
-            padding: 14px;
-            text-align: center;
-            font-weight: 600;
-            margin: 8px 0;
-            border-radius: 8px;
-        }
-        .btn-play { background: #4CAF50; }
-        
-        .loader {
-            text-align: center;
-            padding: 40px;
-            color: #666;
-        }
-        .error {
-            background: #ffebee;
-            color: #c62828;
-            padding: 16px;
-            border-radius: 8px;
-            text-align: center;
-        }
+        #map { flex: 1; min-height: 400px; }
+        .info { background: white; padding: 16px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+        .info p { margin: 8px 0; font-size: 14px; color: #333; }
+        .btn { display: block; background: #4CAF50; color: white; text-decoration: none; padding: 14px; text-align: center; font-weight: 600; margin-top: 12px; border-radius: 8px; }
+        .loader { text-align: center; padding: 40px; color: #666; }
+        .error { background: #ffebee; color: #c62828; padding: 16px; border-radius: 8px; text-align: center; }
     </style>
 </head>
 <body>
-
     <div class="header">
         <h1>🚗 Siguiendo viaje Yipias</h1>
-        <p>En tiempo real • Seguro • Premium</p>
+        <p>En tiempo real</p>
     </div>
-
     <div id="map"></div>
-
-    <div class="info-panel">
-        <div id="loading" class="loader">🔍 Buscando viaje...</div>
-        
-        <div id="contenido" style="display:none;">
-            <div class="ruta" id="txtRuta">📍 Cargando...</div>
-            <div class="estado" id="txtEstado">Estado: ...</div>
-            
-           <a href="https://play.google.com/store/apps/details?id=com.yipias.cliente" class="btn-app btn-play" target="_blank">📥 Descargar app Yipias gratis</a>
+    <div class="info">
+        <div id="loading" class="loader">🔍 Cargando viaje...</div>
+        <div id="content" style="display:none;">
+            <p id="ruta">📍 Cargando...</p>
+            <p id="estado">🚦 Estado: ...</p>
+            <p id="actualizacion">🕒 Última actualización: --</p>
+            <a id="btnApp" class="btn" href="#">📱 Abrir en la app Yipias</a>
+            <a href="https://play.google.com/store/apps/details?id=com.yipias.cliente" class="btn" target="_blank">📥 Descargar app gratis</a>
         </div>
     </div>
 
-    <!-- Leaflet JS (OpenStreetMap) -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-     <script>
-        let map;
-        let marker;
-        let gpsListener;
+    <script>
+        // 🔹 CONFIGURACIÓN
+        const FIREBASE_URL = 'https://yipias-web-f06e1-default-rtdb.firebaseio.com';
+        const DEFAULT_LAT = -5.1945;  // Piura
+        const DEFAULT_LNG = -80.6328;
 
+        // 🔹 VARIABLES GLOBALES
+        let map, marker, pollInterval;
         const params = new URLSearchParams(window.location.search);
-        const pedidoId = params.get('id') || '';
+        const pedidoId = params.get('id');
 
+        // 🔹 INICIALIZAR
         if (!pedidoId) {
-            document.getElementById('loading').innerHTML = 
-                '<div class="error">🚗 Esperando viaje...<br><small>Este enlace se comparte desde la app Yipias</small></div>';
+            document.getElementById('loading').innerHTML = '<div class="error">❌ Enlace inválido<br><small>Usa: track.html?id=ID_DEL_VIAJE</small></div>';
         } else {
-            cargarViaje();
+            initMap();
+            loadViaje();
         }
 
-        function cargarViaje() {
-            const dbURL = `https://yipias-web-f06e1-default-rtdb.firebaseio.com/pedidos/${pedidoId}.json`;
-            
-            fetch(dbURL)
-                .then(res => {
-                    if (!res.ok) throw new Error('Viaje no encontrado');
-                    return res.json();
-                })
-                .then(data => {
-                    document.getElementById('loading').style.display = 'none';
-                    document.getElementById('contenido').style.display = 'block';
-                    
-                    const origen = data.origen_texto || 'Origen';
-                    const destino = data.destino_texto || 'Destino';
-                    const estado = data.estado || 'Desconocido';
-                    const conductor = data.conductor_nombre || 'Conductor';
-                    
-                    document.getElementById('txtRuta').innerHTML = 
-                        `📍 ${origen}<br><br>🏁 ${destino}<br><br>🚖 ${conductor}`;
-                    document.getElementById('txtEstado').textContent = 
-                        `🚦 Estado: ${estado.replace('_', ' ').toUpperCase()}`;
-                    
-                    // Inicializar mapa con Leaflet
-                    initMap(data);
-                    
-                    // Suscribirse a GPS EN TIEMPO REAL
-                    subscribeToGPSRealtime();
-                })
-                .catch(err => {
-                    console.error('Error cargando viaje:', err);
-                    document.getElementById('loading').innerHTML = 
-                        '<div class="error">⚠️ No se pudo cargar<br><small>El viaje puede haber finalizado</small></div>';
-                });
-        }
-
-        function initMap(data) {
-            // Coordenadas por defecto (Piura)
-            let lat = -5.1945;
-            let lng = -80.6328;
-            
-            if (data.latConductor && data.lngConductor) {
-                lat = data.latConductor;
-                lng = data.lngConductor;
-            } else if (data.lat_A && data.lng_A) {
-                lat = data.lat_A;
-                lng = data.lng_A;
-            }
-            
-            // Crear mapa con OpenStreetMap
-            map = L.map('map').setView([lat, lng], 17);
-            
+        // 🔹 CREAR MAPA
+        function initMap() {
+            map = L.map('map').setView([DEFAULT_LAT, DEFAULT_LNG], 15);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap'
             }).addTo(map);
-            
-            // 🔹 ICONO DE AUTO MEJORADO (SVG)
-                       // 🔹 ICONO DE AUTO (VISTO DE FRENTE - similar a ic_auto_front_hd)
+        }
+
+        // 🔹 CARGAR DATOS DEL VIAJE (una sola vez)
+        function loadViaje() {
+            fetch(`${FIREBASE_URL}/pedidos/${pedidoId}.json`)
+                .then(r => r.json())
+                .then(data => {
+                    if (!data) throw new Error('Viaje no encontrado');
+                    
+                    // Mostrar datos estáticos
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('content').style.display = 'block';
+                    document.getElementById('ruta').innerHTML = `📍 ${data.origen_texto || 'Origen'}<br>🏁 ${data.destino_texto || 'Destino'}`;
+                    document.getElementById('estado').textContent = `🚦 Estado: ${data.estado || 'Desconocido'}`.replace('_', ' ');
+                    document.getElementById('btnApp').href = `yipias://track/${pedidoId}`;
+                    
+                    // Centrar mapa en coordenadas si existen
+                    const lat = data.latConductor || data.lat_A || DEFAULT_LAT;
+                    const lng = data.lngConductor || data.lng_A || DEFAULT_LNG;
+                    map.setView([lat, lng], 16);
+                    
+                    // Crear marcador inicial
+                    crearMarcador(lat, lng);
+                    
+                    // Iniciar polling de GPS
+                    startPolling();
+                })
+                .catch(err => {
+                    console.error('Error:', err);
+                    document.getElementById('loading').innerHTML = '<div class="error">⚠️ No se pudo cargar el viaje</div>';
+                });
+        }
+
+        // 🔹 CREAR/ACTUALIZAR MARCADOR
+        function crearMarcador(lat, lng) {
             const carIcon = L.divIcon({
-                html: `<svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Círculo blanco de fondo -->
-                    <circle cx="12" cy="12" r="11" fill="white" stroke="#0078D7" stroke-width="2"/>
-                    <!-- Auto azul de frente -->
-                    <rect x="7" y="9" width="10" height="7" rx="1" fill="#0078D7"/>
-                    <path d="M8 16L6 19H18L16 16" fill="#0078D7"/>
-                    <rect x="9" y="10" width="6" height="3" fill="#1976D2"/>
-                    <!-- Ruedas -->
-                    <circle cx="9" cy="16" r="1.5" fill="#333"/>
-                    <circle cx="15" cy="16" r="1.5" fill="#333"/>
-                </svg>`,
-                iconSize: [36, 36],
-                className: 'car-marker',
-                iconAnchor: [18, 18]
+                html: '<div style="font-size:32px;background:white;border-radius:50%;padding:4px;box-shadow:0 2px 8px rgba(0,0,0,0.3);">🚗</div>',
+                iconSize: [40, 40],
+                className: 'car-marker'
             });
             
-            marker = L.marker([lat, lng], {icon: carIcon}).addTo(map);
-            
-            // 🔹 DIBUJAR RUTA A→B (si existe polyline)
-            if (data.polyline_A_B) {
-                const puntosAB = decodePolyline(data.polyline_A_B);
-                L.polyline(puntosAB, { 
-                    color: '#C9A227',
-                    weight: 6, 
-                    opacity: 0.8 
-                }).addTo(map);
+            if (marker) {
+                marker.setLatLng([lat, lng]);
+            } else {
+                marker = L.marker([lat, lng], {icon: carIcon}).addTo(map);
             }
-            
-            // 🔹 MARCADOR DE DESTINO
-            if (data.lat_B && data.lng_B) {
-                L.marker([data.lat_B, data.lng_B], {
-                    icon: L.divIcon({
-                        html: '<div style="font-size:28px;">🏁</div>',
-                        iconSize: [35, 35]
-                    })
-                }).addTo(map).bindPopup('Destino');
-            }
-            
-            // 🔹 PARADA 1 (si existe)
-            if (data.has_p1 && data.lat_P1 && data.lng_P1) {
-                L.marker([data.lat_P1, data.lng_P1], {
-                    icon: L.divIcon({
-                        html: '<div style="font-size:24px;">🚏</div>',
-                        iconSize: [30, 30]
-                    })
-                }).addTo(map).bindPopup('Parada 1');
-            }
-            
-            // 🔹 PARADA 2 (si existe)
-            if (data.has_p2 && data.lat_P2 && data.lng_P2) {
-                L.marker([data.lat_P2, data.lng_P2], {
-                    icon: L.divIcon({
-                        html: '<div style="font-size:24px;">🚏</div>',
-                        iconSize: [30, 30]
-                    })
-                }).addTo(map).bindPopup('Parada 2');
-            }
-
-            // 🔹 AJUSTAR ZOOM para ver toda la ruta
-            if (data.lat_B && data.lng_B) {
-                const bounds = L.latLngBounds([[lat, lng], [data.lat_B, data.lng_B]]);
-                map.fitBounds(bounds, { padding: [50, 50] });
-            }
-            
-            console.log('✅ Mapa inicializado en:', lat, lng);
+            map.setView([lat, lng], 17);
         }
 
-        // 🔹 SUSCRIPCIÓN EN TIEMPO REAL (Firebase)
-        function subscribeToGPSRealtime() {
-            const trackURL = `https://yipias-web-f06e1-default-rtdb.firebaseio.com/pedidos/${pedidoId}/ubicacion_cache.json`;
-            
-            console.log('📡 Escuchando GPS en:', trackURL);
-            
-            // Método 1: Server-Sent Events (SSE) para Firebase
-            const eventSource = new EventSource(`${trackURL}?stream=true`);
-            
-            eventSource.onmessage = (event) => {
-                try {
-                    const data = JSON.parse(event.data);
-                    console.log('📍 GPS recibido:', data);
-                    
-                    if (data && data.lat && data.lng) {
-                        updateMarker(data.lat, data.lng);
-                    }
-                } catch (err) {
-                    console.error('Error parseando GPS:', err);
-                }
-            };
-            
-            eventSource.onerror = (err) => {
-                console.error('❌ Error en SSE:', err);
-                eventSource.close();
-                
-                // Fallback: Polling cada 3 segundos
-                console.log('🔄 Cambiando a polling cada 3s...');
-                startPolling(trackURL);
-            };
-        }
-
-        // 🔹 FALLBACK: Polling si SSE falla
-        function startPolling(trackURL) {
-            setInterval(() => {
-                fetch(trackURL + '?t=' + Date.now()) // Cache busting
-                    .then(res => {
-                        if (!res.ok) throw new Error('HTTP ' + res.status);
-                        return res.json();
-                    })
+        // 🔹 POLLING DE GPS (cada 5 segundos)
+        function startPolling() {
+            pollInterval = setInterval(() => {
+                fetch(`${FIREBASE_URL}/pedidos/${pedidoId}/ubicacion_cache.json?t=${Date.now()}`)
+                    .then(r => r.json())
                     .then(data => {
-                        console.log('📍 GPS (polling):', data);
-                        
                         if (data && data.lat && data.lng) {
-                            updateMarker(data.lat, data.lng);
-                        } else {
-                            console.warn('⚠️ GPS sin coordenadas:', data);
+                            crearMarcador(data.lat, data.lng);
+                            document.getElementById('actualizacion').textContent = `🕒 Última actualización: ${new Date().toLocaleTimeString()}`;
                         }
                     })
-                    .catch(err => {
-                        console.log('⏳ Esperando GPS... (' + err.message + ')');
-                    });
-            }, 3000);
+                    .catch(err => console.log('Esperando GPS...', err));
+            }, 5000);
         }
 
-        function updateMarker(lat, lng) {
-            console.log('🚗 Actualizando marcador a:', lat, lng);
-            
-            if (!map) {
-                console.error('❌ Mapa no inicializado');
-                return;
-            }
-            
-            const pos = [lat, lng];
-            
-            if (marker) {
-                marker.setLatLng(pos);
-                // NO hacer setView en cada actualización (molesto para el usuario)
-                // map.setView(pos, 17);
-            } else {
-                console.error('❌ Marcador no existe');
-            }
-        }
-        
-        // 🔹 FUNCIÓN PARA DECODIFICAR POLYLINE
-        function decodePolyline(encoded) {
-            let points = [], index = 0, len = encoded.length;
-            let lat = 0, lng = 0;
-            while (index < len) {
-                let b, shift = 0, result = 0;
-                do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
-                let dlat = ((result & 1) ? ~(result >> 1) : (result >> 1)); lat += dlat;
-                shift = 0; result = 0;
-                do { b = encoded.charCodeAt(index++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
-                let dlng = ((result & 1) ? ~(result >> 1) : (result >> 1)); lng += dlng;
-                points.push([lat / 1e5, lng / 1e5]);
-            }
-            return points;
-        }
-        
-        // Cleanup al cerrar
+        // 🔹 LIMPIEZA AL CERRAR
         window.addEventListener('beforeunload', () => {
-            if (gpsListener) {
-                // Limpiar listeners si es necesario
-            }
+            if (pollInterval) clearInterval(pollInterval);
         });
     </script>
 </body>
