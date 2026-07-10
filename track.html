@@ -110,18 +110,44 @@
             map.setView([lat, lng], 17);
         }
 
-        // 🔹 POLLING DE GPS (cada 5 segundos)
+              // 🔹 POLLING DE GPS + VERIFICACIÓN DE ESTADO (cada 5 segundos)
         function startPolling() {
             pollInterval = setInterval(() => {
-                fetch(`${FIREBASE_URL}/pedidos/${pedidoId}/ubicacion_cache.json?t=${Date.now()}`)
+                // 1️⃣ PRIMERO: Verificar si el viaje sigue activo
+                fetch(`${FIREBASE_URL}/pedidos/${pedidoId}.json?t=${Date.now()}`)
                     .then(r => r.json())
                     .then(data => {
-                        if (data && data.lat && data.lng) {
-                            crearMarcador(data.lat, data.lng);
+                        if (!data) return;
+                        
+                        const estado = data.estado || '';
+                        
+                        // 🔹 SI EL VIAJE TERMINÓ, DETENER TODO
+                        if (estado === 'FINALIZADO' || estado === 'CANCELADO') {
+                            clearInterval(pollInterval);  // ← DETENER POLLING
+                            document.getElementById('actualizacion').textContent = '🏁 Viaje finalizado';
+                            
+                            // Opcional: mostrar mensaje visual
+                            const banner = document.createElement('div');
+                            banner.style.cssText = 'background:#4CAF50;color:white;padding:12px;text-align:center;font-weight:bold;';
+                            banner.textContent = '✅ Este viaje ha concluido';
+                            document.querySelector('.info').prepend(banner);
+                            
+                            console.log('🛑 Polling detenido - viaje finalizado');
+                            return;  // Salir sin procesar GPS
+                        }
+                        
+                        // 2️⃣ SI SIGUE ACTIVO, actualizar GPS
+                        const cacheRef = `${FIREBASE_URL}/pedidos/${pedidoId}/ubicacion_cache.json?t=${Date.now()}`;
+                        return fetch(cacheRef).then(r => r.json());
+                    })
+                    .then(gpsData => {
+                        if (!gpsData) return;  // Si fue finalizado, gpsData será undefined
+                        if (gpsData.lat && gpsData.lng) {
+                            crearMarcador(gpsData.lat, gpsData.lng);
                             document.getElementById('actualizacion').textContent = `🕒 Última actualización: ${new Date().toLocaleTimeString()}`;
                         }
                     })
-                    .catch(err => console.log('Esperando GPS...', err));
+                    .catch(err => console.log('Esperando datos...', err));
             }, 5000);
         }
 
