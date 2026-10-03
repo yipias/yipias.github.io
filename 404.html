@@ -4,12 +4,29 @@
     <meta charset="UTF-8">
     <title>Redirigiendo...</title>
     <script>
-        var path = window.location.pathname;
-        if (path.includes('politicas') || path.includes('privacidad')) {
-            window.location.href = 'https://yipias.com/politicasseguridad.html';
-        } else {
-            window.location.href = 'https://yipias.com/terminoscondiciones.html';
-        }
+        (function () {
+            var qrMatch = /^\/v\/([a-fA-F0-9]{40})$/.exec(window.location.pathname);
+            if (qrMatch) {
+                window.__YIPIAS_QR_TOKEN__ = qrMatch[1];
+                document.addEventListener('DOMContentLoaded', function () {
+                    document.title = 'Abriendo YipiAs...';
+                    document.body.innerHTML = '<main style="min-height:100vh;display:grid;place-items:center;padding:24px;font-family:Arial,sans-serif;color:#263238"><p id="qr-status" role="status" aria-live="polite">Abriendo YipiAs...</p></main>';
+                    var script = document.createElement('script');
+                    script.type = 'module';
+                    script.src = '/qr/landing.js';
+                    document.head.appendChild(script);
+                }, { once: true });
+                return;
+            }
+
+            // Fallback actual del 404: conservar este bloque sin cambios.
+            var path = window.location.pathname;
+            if (path.includes('politicas') || path.includes('privacidad')) {
+                window.location.href = 'https://yipias.com/politicasseguridad.html';
+            } else {
+                window.location.href = 'https://yipias.com/terminoscondiciones.html';
+            }
+        })();
     </script>
 </head>
 <body>Redirigiendo...</body>
